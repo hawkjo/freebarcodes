@@ -1,4 +1,5 @@
 import itertools
+import numpy as np
 
 
 bases = 'ACGT'
@@ -20,8 +21,8 @@ class SeqlevSphere(object):
     def __iter__(self):
         yield self.c
         for nsub in range(self.r+1):
-            for ndel in range(nsub, self.r+1):
-                for nins in range(ndel, self.r+1):
+            for ndel in range(self.r+1 - nsub):
+                for nins in range(self.r+1 - nsub - ndel):
                     for seq in self._seqlev_subsphere_given_counts(nsub, ndel, nins):
                         yield seq
     

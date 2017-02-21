@@ -32,7 +32,8 @@ class SeqlevSphere(object):
         for nsub in range(self.r+1):
             for ndel in range(self.r+1 - nsub):
                 ins_start = max(0, self.min_r - nsub - ndel)
-                for nins in range(ins_start, self.r+1 - nsub - ndel):
+                ins_end = self.r+1 - nsub - ndel
+                for nins in range(ins_start, ins_end):
                     yield nsub, ndel, nins
 
     def _seqlev_subsphere_given_counts(self, nsub, ndel, nins):

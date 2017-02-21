@@ -1,5 +1,6 @@
 import itertools
 import numpy as np
+import seqlev_dist
 
 
 bases = 'ACGT'
@@ -16,7 +17,7 @@ class SeqlevSphere(object):
     """
     def __init__(self, c, r, min_r=0):
         c = c.upper()
-        assert set(c) in set(bases), 'Center object must be DNA.'
+        assert set(c) <= set(bases), 'Center object must be DNA.'
         assert r >= 0, 'Radius must be >= 0.'
         assert min_r <= r, 'Min radius must be <= sphere radius.'
         self.c = c
@@ -143,3 +144,20 @@ class SeqlevSphere(object):
                     newseq += ins_bases[base_idx] + seq[i:j]
                 newseq += ins_bases[-1] + seq[idxtup[-1]:]
                 yield newseq
+
+
+    def iterator_test(self):
+        print 'Generating self set...'
+        self_set = set(self)
+        print 'Generating brute force set...'
+        bf_set = set(''.join(tup) for tup in itertools.product(bases, repeat=len(self.c))
+                     if self.min_r <= seqlev_dist.seqlev_dist(self.c, ''.join(tup)) <= self.r)
+        print 'Comparing...'
+        if self_set == bf_set:
+            print 'PASS'
+        else:
+            print '#### FAIL ####'
+            print '{} missing seqs, {} extra seqs'.format(
+                len(bf_set - self_set), len(self_set - bf_set)
+            )
+

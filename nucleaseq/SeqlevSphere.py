@@ -14,18 +14,27 @@ class SeqlevSphere(object):
         c :str:     Dna string at center of sphere
         r :int:     Radius of sphere
     """
-    def __init__(self, c, r):
+    def __init__(self, c, r, min_r=0):
+        c = c.upper()
+        assert set(c) in set(bases), 'Center object must be DNA.'
+        assert r >= 0, 'Radius must be >= 0.'
+        assert min_r <= r, 'Min radius must be <= sphere radius.'
         self.c = c
         self.r = r
+        self.min_r = min_r
 
     def __iter__(self):
-        yield self.c
+        for nsub, ndel, nins in self._nsub_ndel_nins_iterator():
+            for seq in self._seqlev_subsphere_given_counts(nsub, ndel, nins):
+                yield seq
+    
+    def _nsub_ndel_nins_iterator(self):
         for nsub in range(self.r+1):
             for ndel in range(self.r+1 - nsub):
-                for nins in range(self.r+1 - nsub - ndel):
-                    for seq in self._seqlev_subsphere_given_counts(nsub, ndel, nins):
-                        yield seq
-    
+                ins_start = max(0, self.min_r - nsub - ndel)
+                for nins in range(ins_start, self.r+1 - nsub - ndel):
+                    yield nsub, ndel, nins
+
     def _seqlev_subsphere_given_counts(self, nsub, ndel, nins):
         """
         Iterates through seqs with given number of errors from c.

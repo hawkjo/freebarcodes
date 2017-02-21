@@ -1,6 +1,8 @@
 import itertools
 import numpy as np
+from pathos.multiprocessing import ProcessPool
 import seqlev_dist
+import barcodes
 
 
 bases = 'ACGT'
@@ -146,9 +148,16 @@ class SeqlevSphere(object):
                 yield newseq
 
 
-    def iterator_test(self):
+    def iterator_test(self, iterator='self'):
         print 'Generating self set...'
-        self_set = set(self)
+        if iterator == 'self':
+            self_set = set(self)
+        elif iterator == 'parallel_num':
+            self_set = set(barcodes.num2dna(seq, len(self.c))
+                           for seq in self.parallel_num_iterator())
+        else:
+            raise ValueError('Invalid iterator to test: {}'.format(iterator))
+
         print 'Generating brute force set...'
         bf_set = set(''.join(tup) for tup in itertools.product(bases, repeat=len(self.c))
                      if self.min_r <= seqlev_dist.seqlev_dist(self.c, ''.join(tup)) <= self.r)
@@ -161,3 +170,16 @@ class SeqlevSphere(object):
                 len(bf_set - self_set), len(self_set - bf_set)
             )
 
+    def parallel_num_iterator(self, num_proc=None):
+        nerr_tups = list(self._nsub_ndel_nins_iterator())
+        def dna_nums_given_nerr_tup(nerr_tup):
+            nsub, ndel, nins = nerr_tup
+            return [barcodes.dna2num(seq)
+                    for seq in self._seqlev_subsphere_given_counts(nsub, ndel, nins)]
+
+        pl = ProcessPool(num_proc)
+        results = pl.map(dna_nums_given_nerr_tup, nerr_tups)
+        for num in itertools.chain(*results):
+            yield num
+        pl._clear()
+        del pl

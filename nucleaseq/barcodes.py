@@ -1,9 +1,16 @@
+import sys
+import os
 import numpy as np
 import SeqlevSphere
 import seqlev_dist
+import string
 
 
 bases = 'ACGT'
+
+dna_complements = string.maketrans('acgtnACGTN', 'tgcanTGCAN')
+def dna_rev_comp(dna_string):
+    return dna_string.translate(dna_complements)[::-1]
 
 
 def possible_barcode_iterator(k, AT_max, GC_max):
@@ -30,6 +37,10 @@ def possible_barcode_iterator(k, AT_max, GC_max):
             bad_bases += 'AT'
         elif prev_cnt[1] + prev_cnt[2] == GC_max:
             bad_bases += 'CG'
+        for i in range(len(prev_seq)-4):
+            if dna_rev_comp(prev_seq[i+1:i+3]) == prev_seq[-2:]:
+                bad_bases += dna_rev_comp(prev_seq[i])
+
 
         if len(prev_seq) + 1 == k:
             for base in bases:
@@ -120,6 +131,7 @@ class SeqlevBarcodeGenerator(object):
         for seq_idx in self.seq_idx_iter_func():
             if not self._idx_is_reserved(seq_idx):
                 self._add_barcode(seq_idx)
+                print len(self.barcodes),
 
     @property
     def dna_barcodes(self):
@@ -138,3 +150,16 @@ class SeqlevBarcodeGenerator(object):
                     return
         print 'Barcodes Pass Manual Check'
 
+def write_barcodes(bc_len, min_dist, dpath):
+    import time
+    start_time = time.time()
+    fpath = os.path.join(dpath, 'barcodes{}-{}.txt'.format(bc_len, min_dist))
+    GC_max = min(range(bc_len), key=lambda x: abs(float(x)/bc_len-0.6))
+    print 'AT/GC max:', GC_max
+    bc_iter = idx_possible_barcode_iterator(bc_len, GC_max, GC_max)
+    sbg = SeqlevBarcodeGenerator(bc_len, min_dist, bc_iter)
+    sbg.Conway_closure()
+    with open(fpath, 'w') as out:
+        out.write('\n'.join(sorted(sbg.dna_barcodes)))
+    print
+    print 'Barcode generation time:', time.time() - start_time

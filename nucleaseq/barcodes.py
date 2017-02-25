@@ -1,4 +1,6 @@
 import numpy as np
+import SeqlevSphere
+import seqlev_dist
 
 
 bases = 'ACGT'
@@ -48,7 +50,14 @@ def possible_barcode_iterator(k, AT_max, GC_max):
                 for seq in recursive_extension(b1 + b2, c1 + c2):
                     yield seq
 
-    return iterate_seqs()
+    return iterate_seqs
+
+
+def idx_possible_barcode_iterator(k, AT_max, GC_max):
+    def iterate_seqs():
+        for seq in possible_barcode_iterator(k, AT_max, GC_max)():
+            yield dna2num(seq)
+    return iterate_seqs
 
 
 def dna2num(s):
@@ -68,4 +77,64 @@ def num2dna(n, dnalen):
         dnalen :int:    Length of dna string
     """
     return ''.join(bases[(n & (3 << i)) >> i] for i in xrange(2*dnalen-2, -1, -2))
+
+
+class SeqlevBarcodeGenerator(object):
+    def __init__(self, bc_len, min_dist, seq_idx_iter_func=None):
+        self.bc_len = bc_len
+        self.min_dist = min_dist
+        self._codewords = set()
+        self.barcodes = set()
+        self.manual_codewords = set()
+        self.reserved_words = np.zeros((4**self.bc_len, ), dtype=np.uint8)
+        if seq_idx_iter_func is not None:
+            self.seq_idx_iter_func = seq_idx_iter_func
+        else:
+            self.seq_idx_iter_func = lambda : xrange(4**self.bc_len)
+
+    def _add_codeword(self, idx):
+        assert isinstance(idx, int), '{} is not a valid codeword. Must be int'.format(idx)
+        self._codewords.add(idx)
+        word = num2dna(idx, self.bc_len)
+        for seq_idx in SeqlevSphere.SeqlevSphere(word, self.min_dist-1).parallel_num_iterator():
+            self.reserved_words[seq_idx] = 1
+
+    def _add_barcode(self, seq_idx):
+        assert not self._idx_is_reserved(seq_idx), seq_idx
+        self.barcodes.add(seq_idx)
+        self._codewords.add(seq_idx)
+        self._add_codeword(seq_idx)
+
+    def add_dnastr_nonbarcode_codeword(self, dnastring):
+        seq_idx = dna2num(dnastring)
+        self.add_idx_nonbarcode_codeword(seq_idx)
+        
+    def add_idx_nonbarcode_codeword(self, seq_idx):
+        self.manual_codewords.add(seq_idx)
+        self._add_codeword(seq_idx)
+
+    def _idx_is_reserved(self, idx):
+        return self.reserved_words[idx]
+
+    def Conway_closure(self):
+        for seq_idx in self.seq_idx_iter_func():
+            if not self._idx_is_reserved(seq_idx):
+                self._add_barcode(seq_idx)
+
+    @property
+    def dna_barcodes(self):
+        return (num2dna(seq_idx, self.bc_len) for seq_idx in self.barcodes)
+
+    def manual_barcodes_test(self):
+        bc_list = list(self.barcodes)
+        for i in range(len(self.barcodes)):
+            bc1 = num2dna(bc_list[i], self.bc_len)
+            for j in range(i+1, len(self.barcodes)):
+                bc2 = num2dna(bc_list[j], self.bc_len)
+                dist = seqlev_dist.seqlev_dist(bc1, bc2)
+                if dist < self.min_dist:
+                    print '!'*10 + ' FAIL ' + '!'*10
+                    print 'Distance {} between {} and {}.'.format(dist, bc1, bc2)
+                    return
+        print 'Barcodes Pass Manual Check'
 

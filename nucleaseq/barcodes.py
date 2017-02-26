@@ -33,6 +33,8 @@ def possible_barcode_iterator(k, AT_max, GC_max):
         bad_bases = ''
         if prev_seq[-2] == prev_seq[-1]:
             bad_bases += prev_seq[-1]
+            if prev_seq[-1] == 'G':  # Illumina has higher errors with GGC
+                bad_bases += 'C'
         if prev_cnt[0] + prev_cnt[3] == AT_max:
             bad_bases += 'AT'
         elif prev_cnt[1] + prev_cnt[2] == GC_max:

@@ -31,15 +31,15 @@ def possible_barcode_iterator(k, AT_max, GC_max):
 
     def recursive_extension(prev_seq, prev_cnt):  # No defaults
         bad_bases = ''
-        if prev_seq[-2] == prev_seq[-1]:
+        if prev_seq[-2] == prev_seq[-1]:  # Don't allow triplets
             bad_bases += prev_seq[-1]
             if prev_seq[-1] == 'G':  # Illumina has higher errors with GGC
                 bad_bases += 'C'
-        if prev_cnt[0] + prev_cnt[3] == AT_max:
+        if prev_cnt[0] + prev_cnt[3] == AT_max:  # Enforce AT/GC content within bounds
             bad_bases += 'AT'
         elif prev_cnt[1] + prev_cnt[2] == GC_max:
             bad_bases += 'CG'
-        for i in range(len(prev_seq)-4):
+        for i in range(len(prev_seq)-4):  # Don't allow rev-comp seqs of 3+ bp
             if dna_rev_comp(prev_seq[i+1:i+3]) == prev_seq[-2:]:
                 bad_bases += dna_rev_comp(prev_seq[i])
 

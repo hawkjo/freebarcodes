@@ -163,5 +163,11 @@ def write_barcodes(bc_len, min_dist, dpath):
     sbg.Conway_closure()
     with open(fpath, 'w') as out:
         out.write('\n'.join(sorted(sbg.dna_barcodes)))
+    comp_time = time.time() - start_time
     print
-    print 'Barcode generation time:', time.time() - start_time
+    print 'Barcode generation time:', comp_time
+    stats_fpath = os.path.join(dpath, 'barcodes{}-{}_stats.txt'.format(bc_len, min_dist))
+    with open(stats_fpath, 'w') as out:
+        out.write('Barcode length:\t{:d}\n'.format(bc_len))
+        out.write('Min-dist:\t{:d}\n'.format(min_dist))
+        out.write('Barcode generation time:\t{:.2f} seconds\n'.format(comp_time))

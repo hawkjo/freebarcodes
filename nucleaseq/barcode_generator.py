@@ -1,9 +1,7 @@
-import sys
 import os
 import numpy as np
 import SeqlevSphere
 import seqlev_dist
-import string
 from seqtools import bases, dna_rev_comp, dna2num, num2dna
 
 

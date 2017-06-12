@@ -2,7 +2,7 @@ import itertools
 import numpy as np
 from pathos.multiprocessing import ProcessPool
 import seqlev_dist
-import barcodes
+import seqtools
 
 
 bases = 'ACGT'
@@ -153,7 +153,7 @@ class SeqlevSphere(object):
         if iterator == 'self':
             self_set = set(self)
         elif iterator == 'parallel_num':
-            self_set = set(barcodes.num2dna(seq, len(self.c))
+            self_set = set(seqtools.num2dna(seq, len(self.c))
                            for seq in self.parallel_num_iterator())
         else:
             raise ValueError('Invalid iterator to test: {}'.format(iterator))
@@ -174,7 +174,7 @@ class SeqlevSphere(object):
         nerr_tups = list(self._nsub_ndel_nins_iterator())
         def dna_nums_given_nerr_tup(nerr_tup):
             nsub, ndel, nins = nerr_tup
-            return [barcodes.dna2num(seq)
+            return [seqtools.dna2num(seq)
                     for seq in self._seqlev_subsphere_given_counts(nsub, ndel, nins)]
 
         pl = ProcessPool(num_proc)

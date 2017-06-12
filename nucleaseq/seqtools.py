@@ -9,6 +9,30 @@ import random
 bases='ACGT'
 
 
+dna_complements = string.maketrans('acgtnACGTN', 'tgcanTGCAN')
+def dna_rev_comp(dna_string):
+    return dna_string.translate(dna_complements)[::-1]
+
+
+def dna2num(s):
+    """
+    Convert dna to number where dna is considered base 4 with '0123' = 'ACGT'.
+
+        s :str:     Given dna string
+    """
+    return sum(bases.index(c) << 2*i for i, c in enumerate(s[::-1]))
+
+
+def num2dna(n, dnalen):
+    """
+    Convert number to dna of given length where dna is considered base 4 with '0123' = 'ACGT'
+
+        n :int:         Numerical representation of dna string
+        dnalen :int:    Length of dna string
+    """
+    return ''.join(bases[(n & (3 << i)) >> i] for i in xrange(2*dnalen-2, -1, -2))
+
+
 def mm_names(ref, seq):
     mms = []
     for i, (c1, c2) in enumerate(zip(ref, seq)):

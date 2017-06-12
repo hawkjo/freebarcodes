@@ -4,13 +4,7 @@ import numpy as np
 import SeqlevSphere
 import seqlev_dist
 import string
-
-
-bases = 'ACGT'
-
-dna_complements = string.maketrans('acgtnACGTN', 'tgcanTGCAN')
-def dna_rev_comp(dna_string):
-    return dna_string.translate(dna_complements)[::-1]
+from seqtools import bases, dna_rev_comp, dna2num, num2dna
 
 
 def possible_barcode_iterator(k, AT_max, GC_max):
@@ -71,25 +65,6 @@ def idx_possible_barcode_iterator(k, AT_max, GC_max):
         for seq in possible_barcode_iterator(k, AT_max, GC_max)():
             yield dna2num(seq)
     return iterate_seqs
-
-
-def dna2num(s):
-    """
-    Convert dna to number where dna is considered base 4 with '0123' = 'ACGT'.
-
-        s :str:     Given dna string
-    """
-    return sum(bases.index(c) << 2*i for i, c in enumerate(s[::-1]))
-
-
-def num2dna(n, dnalen):
-    """
-    Convert number to dna of given length where dna is considered base 4 with '0123' = 'ACGT'
-
-        n :int:         Numerical representation of dna string
-        dnalen :int:    Length of dna string
-    """
-    return ''.join(bases[(n & (3 << i)) >> i] for i in xrange(2*dnalen-2, -1, -2))
 
 
 class SeqlevBarcodeGenerator(object):

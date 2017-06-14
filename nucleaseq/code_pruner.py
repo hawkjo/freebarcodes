@@ -9,7 +9,7 @@ import psutil
 
 class SeqlevCodePruner(object):
     """
-    A class for pruning codes assuming SeqLev is a metric.
+    A class for pruning codes which were made assuming SeqLev is a metric.
     """
     # We use the codebook idea to stake a claim to space for codes and prune new ones with
     # overlapping decode spheres.

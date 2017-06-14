@@ -9,7 +9,7 @@ bases = 'ACGT'
 
 class SeqlevSphere(object):
     """
-    Iterator over the sphere centered at dna c with radius r using Sequence-Levenstein metric.
+    Iterator over the sphere centered at dna c with radius r using Sequence-Levenstein semimetric.
         All iterated seqs have same length as c.
 
         *** Warning: Some repetition will occur, the amount dependent on center string ***

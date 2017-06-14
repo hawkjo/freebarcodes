@@ -4,6 +4,7 @@ import numpy as np
 from collections import defaultdict
 from adapters_cython import simple_hamming_distance
 import random
+import string
 
 
 bases='ACGT'
@@ -245,3 +246,21 @@ def add_random_insertion(seq):
 
 def add_random_truncated_insertion(seq):
     return add_random_insertion(seq)[:len(seq)]
+
+
+def fill_or_truncate(seq, slen):
+    if len(seq) >= slen:
+        return seq[:slen]
+    else:
+        fill = ''.join([random.choice(bases) for _ in range(slen - len(seq))])
+        return seq + fill
+
+
+def add_random_seqlev_errors(seq, nerr):
+    slen = len(seq)
+    err_funcs = [add_random_mismatch,
+                 add_random_deletion,
+                 add_random_insertion]
+    for _ in range(nerr):
+        seq = random.choice(err_funcs)(seq)
+    return fill_or_truncate(seq, slen)

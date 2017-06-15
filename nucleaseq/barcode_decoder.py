@@ -49,11 +49,11 @@ class SeqlevBarcodeDecoder(object):
 
         space_size = 4**self.cw_len + 1
         needed_bytes = space_size * cw_bytes
-        free_bytes = psutil.virtual_memory().free
-        if needed_bytes > free_bytes:
-            raise RuntimeError('Not enough memory. {:,d} bytes needed, {:,d} bytes free'.format(
+        available_bytes = psutil.virtual_memory().available
+        if needed_bytes > available_bytes:
+            raise RuntimeError('Not enough memory. {:,d} bytes needed, {:,d} bytes available'.format(
                 needed_bytes,
-                free_bytes
+                available_bytes
             ))
                 
         self._codebook = np.zeros((space_size,), dtype=dtype)

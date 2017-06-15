@@ -95,11 +95,11 @@ class SeqlevBarcodeGenerator(object):
         self.barcodes = set()
         self.manual_codewords = set()
         needed_bytes = 4**self.bc_len
-        free_bytes = psutil.virtual_memory().free
-        if needed_bytes > free_bytes:
-            raise RuntimeError('Not enough memory. {:,d} bytes needed, {:,d} bytes free'.format(
+        available_bytes = psutil.virtual_memory().available
+        if needed_bytes > available_bytes:
+            raise RuntimeError('Not enough memory. {:,d} bytes needed, {:,d} bytes available'.format(
                 needed_bytes,
-                free_bytes
+                available_bytes
             ))
 
         self.reserved_words = np.zeros((needed_bytes, ), dtype=np.uint8)

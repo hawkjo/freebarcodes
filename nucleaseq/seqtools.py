@@ -222,6 +222,14 @@ def build_read_names_given_seq(target,
     return interesting_reads
 
 
+def fill_or_truncate(seq, slen):
+    if len(seq) >= slen:
+        return seq[:slen]
+    else:
+        fill = ''.join([random.choice(bases) for _ in range(slen - len(seq))])
+        return seq + fill
+
+
 def add_random_mismatch(seq):
     i = random.randrange(len(seq))
     b = random.choice(bases.replace(seq[i], ''))
@@ -248,19 +256,47 @@ def add_random_truncated_insertion(seq):
     return add_random_insertion(seq)[:len(seq)]
 
 
-def fill_or_truncate(seq, slen):
-    if len(seq) >= slen:
-        return seq[:slen]
-    else:
-        fill = ''.join([random.choice(bases) for _ in range(slen - len(seq))])
-        return seq + fill
+def add_random_mismatches(seq, nerr):
+    for i in random.sample(range(len(seq)), nerr):
+        b = random.choice(bases.replace(seq[i], ''))
+        seq = seq[:i] + b + seq[i+1:]
+    return seq
+
+
+def add_random_deletions(seq, nerr):
+    idxs = random.sample(range(len(seq)), nerr)
+    idxs.sort(reverse=True)
+    for i in idxs:
+        seq = seq[:i] + seq[i+1:]
+    return seq
+
+
+def add_random_filled_deletions(seq, nerr):
+    return fill_or_truncate(add_random_deletions(seq, nerr), len(seq))
+
+
+def add_random_insertions(seq, nerr):
+    idxs = random.sample(range(len(seq)), nerr)
+    idxs.sort(reverse=True)
+    for i in idxs:
+        b = random.choice(bases)
+        seq = seq[:i] + b + seq[i:]
+    return seq
+
+
+def add_random_truncated_insertions(seq, nerr):
+    return add_random_insertions(seq, nerr)[:len(seq)]
 
 
 def add_random_seqlev_errors(seq, nerr):
-    slen = len(seq)
-    err_funcs = [add_random_mismatch,
-                 add_random_deletion,
-                 add_random_insertion]
-    for _ in range(nerr):
-        seq = random.choice(err_funcs)(seq)
-    return fill_or_truncate(seq, slen)
+    n_mm = random.randint(0, nerr)
+    n_del = random.randint(0, nerr - n_mm)
+    n_ins = nerr - n_mm - n_del
+    return fill_or_truncate(
+        add_random_deletions(
+            add_random_insertions(
+                add_random_mismatches(seq, n_mm),
+                n_ins),
+            n_del),
+        len(seq)
+    )

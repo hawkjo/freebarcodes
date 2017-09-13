@@ -125,7 +125,7 @@ class SeqlevBarcodeGenerator(object):
 
     def iterate_approx_encode_sphere(self, center_idx):
         word = num2dna(center_idx, self.bc_len)
-        for seq_idx in SeqlevSphere.SeqlevSphere(word, 2*self.max_err).parallel_num_iterator():
+        for seq_idx in SeqlevSphere.SeqlevSphere(word, 2*self.max_err, min_r=self.max_err+1).parallel_num_iterator():
             yield seq_idx
 
     def _add_barcode(self, seq_idx):

@@ -276,7 +276,7 @@ def add_random_filled_deletions(seq, nerr):
 
 
 def add_random_insertions(seq, nerr):
-    idxs = random.sample(range(len(seq)), nerr)
+    idxs = random.sample(nerr*range(len(seq)), nerr)
     idxs.sort(reverse=True)
     for i in idxs:
         b = random.choice(bases)

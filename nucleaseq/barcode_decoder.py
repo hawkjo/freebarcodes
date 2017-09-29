@@ -92,7 +92,7 @@ class SeqlevBarcodeDecoder(object):
             return self._codewords[cw_idx]
 
 
-    def time_decoder(self, n_decodes=1000):
+    def time_decoder(self, n_decodes=1000, verbose=False):
         ground_truth = np.random.choice(self._codewords, n_decodes)
         bcs = [seqtools.add_random_seqlev_errors(cw, self.max_err) for cw in ground_truth]
 
@@ -105,4 +105,6 @@ class SeqlevBarcodeDecoder(object):
             if not gt == dw:
                 raise RuntimeError('Decoding Errors in Test: {} -> {} -> {}'.format(gt, bc, dw))
 
-        print 'Decoding time: {:.2f} seconds'.format(decode_time)
+        if verbose:
+            print 'Decoding time: {:.2f} seconds'.format(decode_time)
+        return decode_time

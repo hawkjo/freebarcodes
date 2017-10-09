@@ -2,7 +2,6 @@ import sys
 import itertools
 import numpy as np
 from collections import defaultdict
-from adapters_cython import simple_hamming_distance
 import random
 import string
 
@@ -190,6 +189,10 @@ def get_complementary_bundle_sets(seq):
                 assert len(newseq) == len(seq)
                 outset.add(newseq)
     return outset
+
+
+def simple_hamming_distance(s1, s2): 
+    return sum(1 for c1, c2 in zip(s1, s2) if c1 != c2)
 
 
 def build_read_names_given_seq(target,

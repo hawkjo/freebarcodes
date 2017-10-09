@@ -1,14 +1,14 @@
 import numpy as np
-import SeqlevSphere
+import FreeDivSphere
 import seqtools
 import cPickle
 import time
 import psutil
 
 
-class SeqlevBarcodeDecoder(object):
+class FreeDivBarcodeDecoder(object):
     """
-    A class for decoding seqlev barcodes after possible introduction of errors.
+    A class for decoding freediv barcodes after possible introduction of errors.
     """
     # This decoder is a simple codebook lookup. For short enough barcodes (as determined by
     # available memory), this is easily done.
@@ -60,7 +60,7 @@ class SeqlevBarcodeDecoder(object):
 
         for i, cw in enumerate(self._codewords):
             cw_idx = i + 1
-            for seq in SeqlevSphere.SeqlevSphere(cw, self.max_err):
+            for seq in FreeDivSphere.FreeDivSphere(cw, self.max_err):
                 seq_idx = seqtools.dna2num(seq)
                 self._codebook[seq_idx] = cw_idx
 
@@ -94,7 +94,7 @@ class SeqlevBarcodeDecoder(object):
 
     def time_decoder(self, n_decodes=1000, verbose=False):
         ground_truth = np.random.choice(self._codewords, n_decodes)
-        bcs = [seqtools.add_random_seqlev_errors(cw, self.max_err) for cw in ground_truth]
+        bcs = [seqtools.add_random_freediv_errors(cw, self.max_err) for cw in ground_truth]
 
         start_time = time.time()
         decoded = map(self.decode, bcs)

@@ -1,13 +1,13 @@
 import itertools
 import numpy as np
 from pathos.multiprocessing import ProcessPool
-import seqlev_dist
+import freediv
 import seqtools
 
 
 bases = 'ACGT'
 
-class SeqlevSphere(object):
+class FreeDivSphere(object):
     """
     Iterator over the sphere centered at dna c with radius r using Sequence-Levenstein semimetric.
         All iterated seqs have same length as c.
@@ -28,7 +28,7 @@ class SeqlevSphere(object):
 
     def __iter__(self):
         for nsub, ndel, nins in self._nsub_ndel_nins_iterator():
-            for seq in self._seqlev_subsphere_given_counts(nsub, ndel, nins):
+            for seq in self._freediv_subsphere_given_counts(nsub, ndel, nins):
                 yield seq
     
     def _nsub_ndel_nins_iterator(self):
@@ -39,7 +39,7 @@ class SeqlevSphere(object):
                 for nins in range(ins_start, ins_end):
                     yield nsub, ndel, nins
 
-    def _seqlev_subsphere_given_counts(self, nsub, ndel, nins):
+    def _freediv_subsphere_given_counts(self, nsub, ndel, nins):
         """
         Iterates through seqs with given number of errors from c.
     
@@ -160,7 +160,7 @@ class SeqlevSphere(object):
 
         print 'Generating brute force set...'
         bf_set = set(''.join(tup) for tup in itertools.product(bases, repeat=len(self.c))
-                     if self.min_r <= seqlev_dist.seqlev_dist(self.c, ''.join(tup)) <= self.r)
+                     if self.min_r <= freediv.free_divergence(self.c, ''.join(tup)) <= self.r)
         print 'Comparing...'
         if self_set == bf_set:
             print 'PASS'
@@ -175,7 +175,7 @@ class SeqlevSphere(object):
         def dna_nums_given_nerr_tup(nerr_tup):
             nsub, ndel, nins = nerr_tup
             return [seqtools.dna2num(seq)
-                    for seq in self._seqlev_subsphere_given_counts(nsub, ndel, nins)]
+                    for seq in self._freediv_subsphere_given_counts(nsub, ndel, nins)]
 
         pl = ProcessPool(num_proc)
         results = pl.map(dna_nums_given_nerr_tup, nerr_tups)

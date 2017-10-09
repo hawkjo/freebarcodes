@@ -1,8 +1,9 @@
 import numpy as np
 
 
-def seqlev_dist_matrix(s1, s2):
-    n = min(len(s1), len(s2)) + 1
+def free_divergence_matrix(s1, s2):
+    assert len(s1) == len(s2), 'Free divergence requires strings of equal length.'
+    n = len(s1) + 1
     M = np.zeros((n, n), dtype=np.uint8)
 
     # First row and column
@@ -50,6 +51,6 @@ def seqlev_dist_matrix(s1, s2):
                       M[n-1, n-2])  # No penalty along last row
     return M
 
-def seqlev_dist(s1, s2):
-    M = seqlev_dist_matrix(s1, s2)
+def free_divergence(s1, s2):
+    M = free_divergence_matrix(s1, s2)
     return M[-1, -1]

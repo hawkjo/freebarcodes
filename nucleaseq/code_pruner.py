@@ -1,15 +1,15 @@
 import sys
 import numpy as np
-import SeqlevSphere
+import FreeDivSphere
 import seqtools
 import cPickle
 import time
 import psutil
 
 
-class SeqlevCodePruner(object):
+class FreeDivCodePruner(object):
     """
-    A class for pruning codes which were made assuming SeqLev is a metric.
+    A class for pruning codes which were made assuming FreeDiv is a metric.
     """
     # We use the codebook idea to stake a claim to space for codes and prune new ones with
     # overlapping decode spheres.
@@ -54,7 +54,7 @@ class SeqlevCodePruner(object):
         self._codebook = np.zeros((space_size,), dtype=dtype)
 
         def decode_sphere_unclaimed(cw):
-            for seq in SeqlevSphere.SeqlevSphere(cw, max_err):
+            for seq in FreeDivSphere.FreeDivSphere(cw, max_err):
                 seq_idx = seqtools.dna2num(seq)
                 if self._codebook[seq_idx] != 0:
                     return False
@@ -62,7 +62,7 @@ class SeqlevCodePruner(object):
 
 
         def claim_decode_sphere(cw, cw_idx):
-            for seq in SeqlevSphere.SeqlevSphere(cw, max_err):
+            for seq in FreeDivSphere.FreeDivSphere(cw, max_err):
                 seq_idx = seqtools.dna2num(seq)
                 self._codebook[seq_idx] = cw_idx
 
@@ -105,7 +105,7 @@ if __name__ == '__main__':
     print in_fpath
     print '{} barcodes before pruning'.format(sum(1 for line in open(in_fpath)))
 
-    pruner = SeqlevCodePruner()
+    pruner = FreeDivCodePruner()
     pruner.prune_and_build_codebook_from_cw_fpath(in_fpath, 2)
     pruner.save_codewords(out_fpath)
     print '{} barcodes after pruning'.format(len(pruner._codewords))

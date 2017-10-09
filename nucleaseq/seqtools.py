@@ -288,7 +288,7 @@ def add_random_truncated_insertions(seq, nerr):
     return add_random_insertions(seq, nerr)[:len(seq)]
 
 
-def add_random_seqlev_errors(seq, nerr):
+def add_random_freediv_errors(seq, nerr):
     n_mm = random.randint(0, nerr)
     n_del = random.randint(0, nerr - n_mm)
     n_ins = nerr - n_mm - n_del

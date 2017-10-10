@@ -26,10 +26,22 @@ class FreeDivBarcodeDecoder(object):
         """
         Builds codebook given path to file with list of one barcode per line.
 
-            :str cw_fpath: barcode file path
+            cw_fpath :str: barcode file path
+            max_err :int: max correctible error
+        """
+        codewords = [line.strip() for line in open(cw_fpath)]
+        self.build_codebook_from_codewords(codewords, max_err)
+
+    def build_codebook_from_codewords(self, codewords, max_err):
+        """
+        Builds codebook given list or set of codewords
+
+            codewords :iterable: list or set of codewords
+            max_err :int: max correctible error
         """
         self.max_err = max_err
         self._codewords = [line.strip() for line in open(cw_fpath)]
+        self._codewords.sort()
         self._set_cw_len()
 
         if len(self._codewords) < 2**8:

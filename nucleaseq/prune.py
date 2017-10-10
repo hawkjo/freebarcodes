@@ -1,6 +1,6 @@
 import sys
 import os
-import barcode_generator
+import generate
 import seqtools
 import time
 

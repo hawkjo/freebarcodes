@@ -1,8 +1,8 @@
 import sys
 import os
 import numpy as np
-import SeqlevSphere
-import seqlev_dist
+import FreeDivSphere
+import freediv
 from seqtools import bases, dna_rev_comp, dna2num, num2dna
 import psutil
 
@@ -67,14 +67,14 @@ def idx_possible_barcode_iterator(k, AT_max, GC_max):
     return iterate_seqs
 
 
-class SeqlevBarcodeGenerator(object):
+class FreeDivBarcodeGenerator(object):
     """
-    A class to generate a set of barcodes via the Seqlev semimetric.
+    A class to generate a set of barcodes via the FreeDiv semimetric.
     """
     # Algorithm explanation:
     #   
     # In a metric space, one can reserve spheres around each new codeword of radius 2*max_err, and
-    # any remaining word not reserved by any codeword is a valid new codeword. The Seqlev
+    # any remaining word not reserved by any codeword is a valid new codeword. The FreeDiv
     # semimetric does not give that guarantee.  However, the above algorithm is still useful in
     # that any word so reseved is guaranteed to not be a valid codeword. Hence, we perform the
     # following steps:
@@ -120,12 +120,12 @@ class SeqlevBarcodeGenerator(object):
 
     def iterate_decode_sphere(self, center_idx):
         word = num2dna(center_idx, self.bc_len)
-        for seq_idx in SeqlevSphere.SeqlevSphere(word, self.max_err).parallel_num_iterator():
+        for seq_idx in FreeDivSphere.FreeDivSphere(word, self.max_err).parallel_num_iterator():
             yield seq_idx
 
     def iterate_approx_encode_sphere(self, center_idx):
         word = num2dna(center_idx, self.bc_len)
-        for seq_idx in SeqlevSphere.SeqlevSphere(word, 2*self.max_err, min_r=self.max_err+1).parallel_num_iterator():
+        for seq_idx in FreeDivSphere.FreeDivSphere(word, 2*self.max_err, min_r=self.max_err+1).parallel_num_iterator():
             yield seq_idx
 
     def _add_barcode(self, seq_idx):
@@ -179,7 +179,7 @@ class SeqlevBarcodeGenerator(object):
             bc1 = num2dna(bc_list[i], self.bc_len)
             for j in range(i+1, len(self.barcodes)):
                 bc2 = num2dna(bc_list[j], self.bc_len)
-                dist = seqlev_dist.seqlev_dist(bc1, bc2)
+                dist = freediv.free_divergence(bc1, bc2)
                 if dist < self.max_err:
                     print '!'*10 + ' FAIL ' + '!'*10
                     print 'Distance {} between {} and {}.'.format(dist, bc1, bc2)
@@ -195,7 +195,7 @@ def write_barcodes(bc_len, max_err, dpath):
     print 'Barcode length:', bc_len
     print 'AT/GC max:', GC_max
     bc_iter = idx_possible_barcode_iterator(bc_len, GC_max, GC_max)
-    sbg = SeqlevBarcodeGenerator(bc_len, max_err, bc_iter)
+    sbg = FreeDivBarcodeGenerator(bc_len, max_err, bc_iter)
     sbg.Conway_closure()
     with open(fpath, 'w') as out:
         out.write('\n'.join(sorted(sbg.dna_barcodes)))

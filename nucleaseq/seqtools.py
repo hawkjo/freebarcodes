@@ -2,7 +2,6 @@ import sys
 import itertools
 import numpy as np
 from collections import defaultdict
-from adapters_cython import simple_hamming_distance
 import random
 import string
 
@@ -192,6 +191,10 @@ def get_complementary_bundle_sets(seq):
     return outset
 
 
+def simple_hamming_distance(s1, s2): 
+    return sum(1 for c1, c2 in zip(s1, s2) if c1 != c2)
+
+
 def build_read_names_given_seq(target,
                                read_names_by_seq_fpath, 
                                allowed_read_names_set, 
@@ -276,7 +279,7 @@ def add_random_filled_deletions(seq, nerr):
 
 
 def add_random_insertions(seq, nerr):
-    idxs = random.sample(range(len(seq)), nerr)
+    idxs = random.sample(nerr*range(len(seq)), nerr)
     idxs.sort(reverse=True)
     for i in idxs:
         b = random.choice(bases)
@@ -288,7 +291,7 @@ def add_random_truncated_insertions(seq, nerr):
     return add_random_insertions(seq, nerr)[:len(seq)]
 
 
-def add_random_seqlev_errors(seq, nerr):
+def add_random_freediv_errors(seq, nerr):
     n_mm = random.randint(0, nerr)
     n_del = random.randint(0, nerr - n_mm)
     n_ins = nerr - n_mm - n_del

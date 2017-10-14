@@ -1,14 +1,14 @@
 import numpy as np
-import SeqlevSphere
+import FreeDivSphere
 import seqtools
 import cPickle
 import time
 import psutil
 
 
-class SeqlevBarcodeDecoder(object):
+class FreeDivBarcodeDecoder(object):
     """
-    A class for decoding seqlev barcodes after possible introduction of errors.
+    A class for decoding freediv barcodes after possible introduction of errors.
     """
     # This decoder is a simple codebook lookup. For short enough barcodes (as determined by
     # available memory), this is easily done.
@@ -26,10 +26,22 @@ class SeqlevBarcodeDecoder(object):
         """
         Builds codebook given path to file with list of one barcode per line.
 
-            :str cw_fpath: barcode file path
+            cw_fpath :str: barcode file path
+            max_err :int: max correctible error
+        """
+        codewords = [line.strip() for line in open(cw_fpath)]
+        self.build_codebook_from_codewords(codewords, max_err)
+
+    def build_codebook_from_codewords(self, codewords, max_err):
+        """
+        Builds codebook given list or set of codewords
+
+            codewords :iterable: list or set of codewords
+            max_err :int: max correctible error
         """
         self.max_err = max_err
         self._codewords = [line.strip() for line in open(cw_fpath)]
+        self._codewords.sort()
         self._set_cw_len()
 
         if len(self._codewords) < 2**8:
@@ -60,7 +72,7 @@ class SeqlevBarcodeDecoder(object):
 
         for i, cw in enumerate(self._codewords):
             cw_idx = i + 1
-            for seq in SeqlevSphere.SeqlevSphere(cw, self.max_err):
+            for seq in FreeDivSphere.FreeDivSphere(cw, self.max_err):
                 seq_idx = seqtools.dna2num(seq)
                 self._codebook[seq_idx] = cw_idx
 
@@ -92,9 +104,9 @@ class SeqlevBarcodeDecoder(object):
             return self._codewords[cw_idx]
 
 
-    def time_decoder(self, n_decodes=1000):
+    def time_decoder(self, n_decodes=1000, verbose=False):
         ground_truth = np.random.choice(self._codewords, n_decodes)
-        bcs = [seqtools.add_random_seqlev_errors(cw, self.max_err) for cw in ground_truth]
+        bcs = [seqtools.add_random_freediv_errors(cw, self.max_err) for cw in ground_truth]
 
         start_time = time.time()
         decoded = map(self.decode, bcs)
@@ -105,4 +117,6 @@ class SeqlevBarcodeDecoder(object):
             if not gt == dw:
                 raise RuntimeError('Decoding Errors in Test: {} -> {} -> {}'.format(gt, bc, dw))
 
-        print 'Decoding time: {:.2f} seconds'.format(decode_time)
+        if verbose:
+            print 'Decoding time: {:.2f} seconds'.format(decode_time)
+        return decode_time

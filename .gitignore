@@ -1,2 +1,7 @@
 *pyc
 *swp
+*pkl
+envnucleaseq
+build
+dist
+nucleaseq.egg-info

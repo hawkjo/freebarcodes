@@ -40,7 +40,7 @@ class FreeDivBarcodeDecoder(object):
             max_err :int: max correctible error
         """
         self.max_err = max_err
-        self._codewords = [line.strip() for line in open(cw_fpath)]
+        self._codewords = list(codewords)
         self._codewords.sort()
         self._set_cw_len()
 

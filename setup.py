@@ -1,6 +1,8 @@
 from setuptools import setup
 from nucleaseq.constants import VERSION
 from distutils.extension import Extension
+#from Cython.Distutils import build_ext
+from Cython.Build import cythonize
 import numpy as np
 
 
@@ -14,6 +16,7 @@ if __name__ == '__main__':
               #'nucleaseq = nucleaseq.main:main'
           #]
         #},
+        ext_modules=cythonize('nucleaseq/editmeasures.pyx'),
         include_package_data=True,
         zip_safe=False,
         description='Processes Nucleaseq data',

@@ -2,7 +2,7 @@ import sys
 import os
 import numpy as np
 import FreeDivSphere
-import freediv
+import editmeasures
 from seqtools import bases, dna_rev_comp, dna2num, num2dna
 import psutil
 
@@ -182,7 +182,7 @@ class FreeDivBarcodeGenerator(object):
             bc1 = num2dna(bc_list[i], self.bc_len)
             for j in range(i+1, len(self.barcodes)):
                 bc2 = num2dna(bc_list[j], self.bc_len)
-                dist = freediv.free_divergence(bc1, bc2)
+                dist = editmeasures.free_divergence(bc1, bc2)
                 if dist < self.max_err:
                     print '!'*10 + ' FAIL ' + '!'*10
                     print 'Distance {} between {} and {}.'.format(dist, bc1, bc2)

@@ -155,11 +155,14 @@ class FreeDivBarcodeGenerator(object):
                     return False
             return True
 
-    def Conway_closure(self):
+    def Conway_closure(self, tmp_fpath=None):
         for seq_idx in self.seq_idx_iter_func():
             if self._idx_is_available(seq_idx):
                 self._add_barcode(seq_idx)
                 print len(self.barcodes),
+                if tmp_fpath:
+                    with open(tmp_fpath, 'a') as out:
+                        out.write('{}\n'.format(num2dna(seq_idx, self.bc_len)))
 
     def Conway_closure_until_satisfied(self, n_desired_barcodes):
         for seq_idx in self.seq_idx_iter_func():
@@ -191,14 +194,16 @@ def write_barcodes(bc_len, max_err, dpath):
     import time
     start_time = time.time()
     fpath = os.path.join(dpath, 'barcodes{}-{}.txt'.format(bc_len, max_err))
+    tmp_fpath = os.path.join(dpath, 'barcodes{}-{}.txt.tmp'.format(bc_len, max_err))
     GC_max = min(range(bc_len), key=lambda x: abs(float(x)/bc_len-0.6))
     print 'Barcode length:', bc_len
     print 'AT/GC max:', GC_max
     bc_iter = idx_possible_barcode_iterator(bc_len, GC_max, GC_max)
     sbg = FreeDivBarcodeGenerator(bc_len, max_err, bc_iter)
-    sbg.Conway_closure()
+    sbg.Conway_closure(tmp_fpath=tmp_fpath)
     with open(fpath, 'w') as out:
         out.write('\n'.join(sorted(sbg.dna_barcodes)))
+    os.remove(tmp_fpath)
     comp_time = time.time() - start_time
     print
     print 'Barcode generation time:', comp_time

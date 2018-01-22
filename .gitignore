@@ -5,3 +5,7 @@ envnucleaseq
 build
 dist
 nucleaseq.egg-info
+*codebook*
+2
+3
+counts.txt

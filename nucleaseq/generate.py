@@ -214,6 +214,45 @@ def write_barcodes(bc_len, max_err, dpath):
         out.write('Barcode generation time:\t{:.2f} seconds\n'.format(comp_time))
 
 
+bad_triplets = [b*3 for b in bases] + ['GGC']
+def go_together(bc, other_bcs, bc_rev_comp_triplets):
+    # Check for bad triplets in only two positions with new triplets: at the boundary
+    rest_with_overhang = bc[-2:] + ''.join(other_bcs)
+    if rest_with_overhang[:3] in bad_triplets or rest_with_overhang[1:4] in bad_triplets:
+        return False
+
+    # Check for reverse complementary triplets, careful to not overfilter at the boundary
+    for bc_rc_trip in bc_rev_comp_triplets[:-2]:
+        if bc_rc_trip in rest_with_overhang:
+            return False
+    if (bc_rev_comp_triplets[-2] in rest_with_overhang[1:]
+        or bc_rev_comp_triplets[-1] in rest_with_overhang[2:]):
+        return False
+    return True
+
+
+def multiple_barcodes_generator(bc_list, r):
+    if r == 1:
+        for bc in bc_list:
+            yield [bc]
+    elif r > 1:
+        for bc in bc_list:
+            bc_rev_comp_triplets = [dna_rev_comp(bc[i:i+3]) for i in range(len(bc)-3)]
+            for other_bcs in multiple_barcodes_generator(bc_list, r=r-1):
+                if go_together(bc, other_bcs, bc_rev_comp_triplets):
+                    yield [bc] + other_bcs
+    else:
+        raise ValueError('r < 1 encountered: {}'.format(r))
+
+
+def write_multiple_barcodes(bc_fpath, out_fpath, r, lim=1e9):
+    bc_list = [line.strip() for line in open(bc_fpath)]
+    with open(out_fpath, 'w') as out:
+        for i, bcs in enumerate(multiple_barcodes_generator(bc_list, r)):
+            if i > lim:
+                return
+            out.write('\t'.join(bcs) + '\n')
+
 if __name__ == '__main__':
     usg = '{} <bc_len> <max_err> <out_dir>'.format(sys.argv[0])
     if len(sys.argv) != len(usg.split()):

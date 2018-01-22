@@ -1,7 +1,7 @@
 import numpy as np
 import FreeDivSphere
 import seqtools
-import cPickle
+import h5py
 import time
 import psutil
 
@@ -84,13 +84,18 @@ class FreeDivBarcodeDecoder(object):
 
 
     def save_codebook(self, out_fpath):
-        with open(out_fpath, 'w') as out:
-            cPickle.dump((self._codewords, self.max_err, self._codebook), out)
+        dtype = 'S{:d}'.format(self.cw_len)
+        with h5py.File(out_fpath) as f:
+            f.create_dataset('codewords', (len(self._codewords),), dtype, self._codewords)
+            f.create_dataset('codebook', (len(self._codebook),), self._codebook.dtype, self._codebook)
+            f.attrs['max_err'] = self.max_err
 
 
     def load_codebook(self, codebook_fpath):
-        with open(codebook_fpath) as f:
-            self._codewords, self.max_err, self._codebook = cPickle.load(f)
+        with h5py.File(codebook_fpath) as f:
+            self.max_err = int(f.attrs['max_err'])
+            self._codewords = list(f['codewords'])
+            self._codebook = np.array(f['codebook'])
         self._set_cw_len()
 
 

@@ -1,2 +1,6 @@
-pathos
-psutil
+pathos==0.2.1
+psutil==5.3.1
+h5py==2.7.1
+numpy==1.13.3
+docopt==0.6.2
+biopython==1.70

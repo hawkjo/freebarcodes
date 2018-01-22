@@ -53,7 +53,7 @@ def prune_barcode_file(raw_fpath, max_err, dpath):
 
     fpath = os.path.join(dpath, 'barcodes{}-{}.txt'.format(bc_len, max_err))
 
-    sbg = barcode_generator.FreeDivBarcodeGenerator(bc_len, max_err, bc_iter)
+    sbg = generate.FreeDivBarcodeGenerator(bc_len, max_err, bc_iter)
     sbg.Conway_closure()
     with open(fpath, 'w') as out:
         out.write('\n'.join(sorted(sbg.dna_barcodes)))

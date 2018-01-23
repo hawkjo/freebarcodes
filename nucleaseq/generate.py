@@ -5,6 +5,9 @@ import FreeDivSphere
 import editmeasures
 from seqtools import bases, dna_rev_comp, dna2num, num2dna
 import psutil
+import logging
+
+log = logging.getLogger(__name__)
 
 
 def possible_barcode_iterator(k, AT_max, GC_max):
@@ -159,7 +162,7 @@ class FreeDivBarcodeGenerator(object):
         for seq_idx in self.seq_idx_iter_func():
             if self._idx_is_available(seq_idx):
                 self._add_barcode(seq_idx)
-                print len(self.barcodes),
+                log.info('Found barcode {}'.format(len(self.barcodes) + 1))
                 if tmp_fpath:
                     with open(tmp_fpath, 'a') as out:
                         out.write('{}\n'.format(num2dna(seq_idx, self.bc_len)))
@@ -168,7 +171,8 @@ class FreeDivBarcodeGenerator(object):
         for seq_idx in self.seq_idx_iter_func():
             if self._idx_is_available(seq_idx):
                 self._add_barcode(seq_idx)
-                print len(self.barcodes), num2dna(seq_idx, self.bc_len)
+                log.info('Found barcode {}: {}'.format(len(self.barcodes) + 1,
+                                                       num2dna(seq_idx, self.bc_len)))
                 if len(self.barcodes) >= n_desired_barcodes:
                     return
 
@@ -184,10 +188,10 @@ class FreeDivBarcodeGenerator(object):
                 bc2 = num2dna(bc_list[j], self.bc_len)
                 dist = editmeasures.free_divergence(bc1, bc2)
                 if dist < self.max_err:
-                    print '!'*10 + ' FAIL ' + '!'*10
-                    print 'Distance {} between {} and {}.'.format(dist, bc1, bc2)
+                    log.error('!'*10 + ' FAIL ' + '!'*10)
+                    log.error('Distance {} between {} and {}.'.format(dist, bc1, bc2))
                     return
-        print 'Barcodes Pass Manual Check'
+        log.info('Barcodes Pass Manual Check')
 
 
 def write_barcodes(bc_len, max_err, dpath):
@@ -196,8 +200,8 @@ def write_barcodes(bc_len, max_err, dpath):
     fpath = os.path.join(dpath, 'barcodes{}-{}.txt'.format(bc_len, max_err))
     tmp_fpath = os.path.join(dpath, 'barcodes{}-{}.txt.tmp'.format(bc_len, max_err))
     GC_max = min(range(bc_len), key=lambda x: abs(float(x)/bc_len-0.6))
-    print 'Barcode length:', bc_len
-    print 'AT/GC max:', GC_max
+    log.info('Barcode length: {}'.format(bc_len))
+    log.info('AT/GC max: {}'.format(GC_max))
     bc_iter = idx_possible_barcode_iterator(bc_len, GC_max, GC_max)
     sbg = FreeDivBarcodeGenerator(bc_len, max_err, bc_iter)
     sbg.Conway_closure(tmp_fpath=tmp_fpath)
@@ -205,18 +209,12 @@ def write_barcodes(bc_len, max_err, dpath):
         out.write('\n'.join(sorted(sbg.dna_barcodes)))
     os.remove(tmp_fpath)
     comp_time = time.time() - start_time
-    print
-    print 'Barcode generation time:', comp_time
-    stats_fpath = os.path.join(dpath, 'barcodes{}-{}_stats.txt'.format(bc_len, max_err))
-    with open(stats_fpath, 'w') as out:
-        out.write('Barcode length:\t{:d}\n'.format(bc_len))
-        out.write('Max-error:\t{:d}\n'.format(max_err))
-        out.write('Barcode generation time:\t{:.2f} seconds\n'.format(comp_time))
+    log.info('Barcode generation time: {}'.format(comp_time))
 
 
 bad_triplets = [b*3 for b in bases] + ['GGC']
 def go_together(bc, other_bcs, bc_rev_comp_triplets):
-    # Check for bad triplets in only two positions with new triplets: at the boundary
+    # Check for bad triplets in only two positions with new triplets at the boundary
     rest_with_overhang = bc[-2:] + ''.join(other_bcs)
     if rest_with_overhang[:3] in bad_triplets or rest_with_overhang[1:4] in bad_triplets:
         return False

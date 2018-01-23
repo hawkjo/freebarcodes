@@ -4,6 +4,9 @@ import seqtools
 import h5py
 import time
 import psutil
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class FreeDivBarcodeDecoder(object):
@@ -109,7 +112,7 @@ class FreeDivBarcodeDecoder(object):
             return self._codewords[cw_idx]
 
 
-    def time_decoder(self, n_decodes=1000, verbose=False):
+    def time_decoder(self, n_decodes=1000):
         ground_truth = np.random.choice(self._codewords, n_decodes)
         bcs = [seqtools.add_random_freediv_errors(cw, self.max_err) for cw in ground_truth]
 
@@ -122,6 +125,5 @@ class FreeDivBarcodeDecoder(object):
             if not gt == dw:
                 raise RuntimeError('Decoding Errors in Test: {} -> {} -> {}'.format(gt, bc, dw))
 
-        if verbose:
-            print 'Decoding time: {:.2f} seconds'.format(decode_time)
+        log.info('Decoding time: {:.2f} seconds'.format(decode_time))
         return decode_time

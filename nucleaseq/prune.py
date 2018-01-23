@@ -3,6 +3,9 @@ import os
 import generate
 import seqtools
 import time
+import logging
+
+log = logging.getLogger(__name__)
 
 bases = 'ACGT'
 
@@ -34,11 +37,11 @@ def make_iterator(raw_fpath):
     GC_max = min(range(bc_len), key=lambda x: abs(float(x)/bc_len-0.6))
     is_good_seq = make_is_good_seq(bc_len - GC_max, GC_max)
 
-    print 'Barcode length:', bc_len
-    print 'AT/GC max:', GC_max
-    print 'Starting list size:', len(bc_list)
+    log.info('Barcode length: {}'.format(bc_len))
+    log.info('AT/GC max: {}'.format(GC_max))
+    log.info('Starting list size: {}'.format(len(bc_list))
     bc_list = [bc for bc in bc_list if is_good_seq(bc)]
-    print 'Valid sequences:', len(bc_list)
+    log.info('Sequences after initial filtering: {}'.format(len(bc_list))
     def iterate_good_barcodes():
         for seq in bc_list:
             yield seqtools.dna2num(seq)
@@ -49,7 +52,7 @@ def prune_barcode_file(raw_fpath, max_err, dpath):
     start_time = time.time()
     bc_iter, bc_len = make_iterator(raw_fpath)
     iter_made_time = time.time()
-    print 'First filter time:', iter_made_time - start_time
+    log.info('First filter time: {}'.format(iter_made_time - start_time))
 
     fpath = os.path.join(dpath, 'barcodes{}-{}.txt'.format(bc_len, max_err))
 
@@ -58,9 +61,8 @@ def prune_barcode_file(raw_fpath, max_err, dpath):
     with open(fpath, 'w') as out:
         out.write('\n'.join(sorted(sbg.dna_barcodes)))
     comp_time = time.time() - start_time
-    print
-    print 'Barcode pruning time:', time.time() - iter_made_time
-    print 'Total time:', comp_time
+    log.info('Barcode pruning time: {}'.format(time.time() - iter_made_time))
+    log.info('Total time: {}'.format(comp_time))
     stats_fpath = os.path.join(dpath, 'barcodes{}-{}_stats.txt'.format(bc_len, max_err))
     with open(stats_fpath, 'w') as out:
         out.write('Barcode length:\t{:d}\n'.format(bc_len))

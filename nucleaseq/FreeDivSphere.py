@@ -3,6 +3,9 @@ import numpy as np
 from pathos.multiprocessing import ProcessPool
 import editmeasures
 import seqtools
+import logging
+
+log = logging.getLogger(__name__)
 
 
 bases = 'ACGT'
@@ -149,7 +152,7 @@ class FreeDivSphere(object):
 
 
     def iterator_test(self, iterator='self'):
-        print 'Generating self set...'
+        log.info('Generating self set...')
         if iterator == 'self':
             self_set = set(self)
         elif iterator == 'parallel_num':
@@ -158,17 +161,17 @@ class FreeDivSphere(object):
         else:
             raise ValueError('Invalid iterator to test: {}'.format(iterator))
 
-        print 'Generating brute force set...'
+        log.info('Generating brute force set...')
         bf_set = set(''.join(tup) for tup in itertools.product(bases, repeat=len(self.c))
                      if self.min_r <= editmeasures.free_divergence(self.c, ''.join(tup)) <= self.r)
-        print 'Comparing...'
+        log.info('Comparing...'
         if self_set == bf_set:
-            print 'PASS'
+            log.info('PASS')
         else:
-            print '#### FAIL ####'
-            print '{} missing seqs, {} extra seqs'.format(
+            log.error('#### FAIL ####')
+            log.error('{} missing seqs, {} extra seqs'.format(
                 len(bf_set - self_set), len(self_set - bf_set)
-            )
+            ))
 
     def parallel_num_iterator(self, num_proc=None):
         nerr_tups = list(self._nsub_ndel_nins_iterator())

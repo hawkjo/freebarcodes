@@ -2,7 +2,7 @@
 
 A package for the generation and decoding of FREE divergence error-correcting DNA barcodes, as described in the manuscript:
 
-##### Error-correcting DNA barcodes for next-generation sequencing
+#### Error-correcting DNA barcodes for next-generation sequencing
 *John A. Hawkins, Stephen K. Jones Jr, Ilya J. Finkelstein, and William H. Press*
 
 *(Submitted)*

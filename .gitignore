@@ -1,11 +1,12 @@
 *pyc
 *swp
 *pkl
-envnucleaseq
+envfreebarcodes
 build
 dist
-nucleaseq.egg-info
+freebarcodes.egg-info
 *codebook*
 2
 3
 counts.txt
+editmeasures.c

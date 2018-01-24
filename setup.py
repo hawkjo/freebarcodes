@@ -18,7 +18,7 @@ if __name__ == '__main__':
         ext_modules=cythonize('freebarcodes/editmeasures.pyx'),
         include_package_data=True,
         zip_safe=False,
-        description='FREE divergence error-correcting DNA barcode generation and decoding',
+        description='FREE Divergence Error-Correcting DNA Barcodes',
         url='http://www.finkelsteinlab.org',
         keywords=['DNA', 'NGS', 'bioinformatics', 'barcodes'],
         classifiers=['Development Status :: 3 - Alpha',

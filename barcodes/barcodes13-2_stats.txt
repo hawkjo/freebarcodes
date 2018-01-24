@@ -1,3 +1,0 @@
-Barcode length:	13
-Max-error:	2
-Barcode generation time:	11279.65 seconds

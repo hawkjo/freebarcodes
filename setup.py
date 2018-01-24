@@ -1,5 +1,5 @@
 from setuptools import setup
-from nucleaseq.constants import VERSION
+from freebarcodes.constants import VERSION
 from distutils.extension import Extension
 #from Cython.Distutils import build_ext
 from Cython.Build import cythonize
@@ -8,20 +8,20 @@ import numpy as np
 
 if __name__ == '__main__':
     setup(
-        name='nucleaseq',
-        packages=['nucleaseq'],
+        name='freebarcodes',
+        packages=['freebarcodes'],
         version=VERSION,
         #entry_points={
           #'console_scripts': [
-              #'nucleaseq = nucleaseq.main:main'
+              #'freebarcodes = freebarcodes.main:main'
           #]
         #},
-        ext_modules=cythonize('nucleaseq/editmeasures.pyx'),
+        ext_modules=cythonize('freebarcodes/editmeasures.pyx'),
         include_package_data=True,
         zip_safe=False,
-        description='Processes Nucleaseq data',
+        description='FREE divergence error-correcting DNA barcode generation and decoding',
         url='http://www.finkelsteinlab.org',
-        keywords=['DNA', 'protein', 'NGS', 'bioinformatics', 'crispr'],
+        keywords=['DNA', 'NGS', 'bioinformatics', 'barcodes'],
         classifiers=['Development Status :: 3 - Alpha',
                      'Natural Language :: English',
                      'Intended Audience :: Science/Research',

@@ -164,7 +164,7 @@ class FreeDivSphere(object):
         log.info('Generating brute force set...')
         bf_set = set(''.join(tup) for tup in itertools.product(bases, repeat=len(self.c))
                      if self.min_r <= editmeasures.free_divergence(self.c, ''.join(tup)) <= self.r)
-        log.info('Comparing...'
+        log.info('Comparing...')
         if self_set == bf_set:
             log.info('PASS')
         else:

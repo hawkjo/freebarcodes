@@ -1,3 +1,0 @@
-Barcode length:	10
-Min-dist:	7
-Barcode generation time:	424.94 seconds

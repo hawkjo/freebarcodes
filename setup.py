@@ -1,7 +1,6 @@
 from setuptools import setup
 from freebarcodes.constants import VERSION
 from distutils.extension import Extension
-#from Cython.Distutils import build_ext
 from Cython.Build import cythonize
 import numpy as np
 
@@ -11,11 +10,11 @@ if __name__ == '__main__':
         name='freebarcodes',
         packages=['freebarcodes'],
         version=VERSION,
-        #entry_points={
-          #'console_scripts': [
-              #'freebarcodes = freebarcodes.main:main'
-          #]
-        #},
+        entry_points={
+          'console_scripts': [
+              'freebarcodes = freebarcodes.main:main'
+          ]
+        },
         ext_modules=cythonize('freebarcodes/editmeasures.pyx'),
         include_package_data=True,
         zip_safe=False,

@@ -39,9 +39,9 @@ def make_iterator(raw_fpath):
 
     log.info('Barcode length: {}'.format(bc_len))
     log.info('AT/GC max: {}'.format(GC_max))
-    log.info('Starting list size: {}'.format(len(bc_list))
+    log.info('Starting list size: {}'.format(len(bc_list)))
     bc_list = [bc for bc in bc_list if is_good_seq(bc)]
-    log.info('Sequences after initial filtering: {}'.format(len(bc_list))
+    log.info('Sequences after initial filtering: {}'.format(len(bc_list)))
     def iterate_good_barcodes():
         for seq in bc_list:
             yield seqtools.dna2num(seq)

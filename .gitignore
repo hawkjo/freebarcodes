@@ -10,3 +10,4 @@ freebarcodes.egg-info
 3
 counts.txt
 editmeasures.c
+*_decoded.txt

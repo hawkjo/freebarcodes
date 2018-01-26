@@ -47,6 +47,10 @@ class CommandLineArguments(object):
         return log_level.get(self._arguments['-v'], logging.ERROR)
 
     @property
+    def max_bc(self):
+        return int(self._arguments['--max_bc'] or 0)
+
+    @property
     def num_errors(self):
         return int(self._arguments['<num_errors>'] or 0)
 

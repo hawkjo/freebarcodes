@@ -2,10 +2,10 @@
 Free Divergence Error-Correcting Barcodes
 
 Usage:
-  freebarcodes.py decode       <barcode_files> <fastq_files> [--output-dir=<output_dir>] [--prefixes=<prefixes>] [-v | -vv | -vvv]
-  freebarcodes.py generate     <barcode_length> <num_errors> [--output-dir=<output_dir>] [-v | -vv | -vvv]
-  freebarcodes.py prune        <raw_barcodes_file> <num_errors> [--output-dir=<output_dir>] [-v | -vv | -vvv]
-  freebarcodes.py concatenate  <barcode_files> [--output-dir=<output_dir>] [-v | -vv | -vvv]
+  freebarcodes decode       <barcode_files> <fastq_files> [--output-dir=<output_dir>] [--prefixes=<prefixes>] [-v | -vv | -vvv]
+  freebarcodes generate     <barcode_length> <num_errors> [--output-dir=<output_dir>] [-v | -vv | -vvv]
+  freebarcodes prune        <raw_barcodes_file> <num_errors> [--output-dir=<output_dir>] [-v | -vv | -vvv]
+  freebarcodes concatenate  <barcode_files> [--output-dir=<output_dir>] [-v | -vv | -vvv]
 
 Options:
   -h --help     Show this screen.
@@ -22,16 +22,15 @@ import logging
 import os
 from freebarcodes.constants import VERSION
 from freebarcodes.config import CommandLineArguments
-#from freebarcodes.generate import generate, concatenate
 #from freebarcodes.decode import decode_fastqs
-from freebarcodes.prune import prune_barcode_file
+from freebarcodes.generate import generate_barcodes #, concatenate_barcodes
+from freebarcodes.prune import prune_barcodes
 from docopt import docopt
 
 
 def main(**kwargs):
     docopt_args = docopt(__doc__, version=VERSION)
     arguments = CommandLineArguments(docopt_args, os.getcwd())
-    return
 
     log = logging.getLogger()
     handler = logging.StreamHandler()
@@ -41,12 +40,14 @@ def main(**kwargs):
     log.setLevel(arguments.log_level)
     log.debug(docopt_args)
 
-    commands = {'decode': decode,
-                'generate': generate,
-                'prune': prune,
-                'concatenate': concatenate}
+    commands = {
+#        'decode': decode_fastqs,
+        'generate': generate_barcodes,
+        'prune': prune_barcodes,
+#        'concatenate': concatenate_barcodes
+    }
 
-    commands[arguments.command].main(arguments)
+    commands[arguments.command](arguments)
 
 
 if __name__ == '__main__':

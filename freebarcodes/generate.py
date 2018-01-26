@@ -194,16 +194,23 @@ class FreeDivBarcodeGenerator(object):
         log.info('Barcodes Pass Manual Check')
 
 
-def write_barcodes(bc_len, max_err, dpath):
+def generate_barcodes(arguments):
     import time
     start_time = time.time()
-    fpath = os.path.join(dpath, 'barcodes{}-{}.txt'.format(bc_len, max_err))
-    tmp_fpath = os.path.join(dpath, 'barcodes{}-{}.txt.tmp'.format(bc_len, max_err))
-    GC_max = min(range(bc_len), key=lambda x: abs(float(x)/bc_len-0.6))
-    log.info('Barcode length: {}'.format(bc_len))
+    fpath = os.path.join(arguments.output_dir,
+                         'barcodes{}-{}.txt'.format(arguments.barcode_length,
+                                                    arguments.num_errors))
+    tmp_fpath = os.path.join(arguments.output_dir,
+                             'barcodes{}-{}.txt.tmp'.format(arguments.barcode_length,
+                                                            arguments.num_errors))
+    GC_max = min(range(arguments.barcode_length), key=lambda x:
+                 abs(float(x)/arguments.barcode_length-0.6))
+    log.info('Barcode length: {}'.format(arguments.barcode_length))
     log.info('AT/GC max: {}'.format(GC_max))
-    bc_iter = idx_possible_barcode_iterator(bc_len, GC_max, GC_max)
-    sbg = FreeDivBarcodeGenerator(bc_len, max_err, bc_iter)
+    bc_iter = idx_possible_barcode_iterator(arguments.barcode_length, GC_max, GC_max)
+    sbg = FreeDivBarcodeGenerator(arguments.barcode_length,
+                                  arguments.num_errors,
+                                  bc_iter)
     sbg.Conway_closure(tmp_fpath=tmp_fpath)
     with open(fpath, 'w') as out:
         out.write('\n'.join(sorted(sbg.dna_barcodes)))

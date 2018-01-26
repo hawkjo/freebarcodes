@@ -2,7 +2,7 @@
 Free Divergence Error-Correcting Barcodes
 
 Usage:
-  freebarcodes decode       <barcode_files> <fastq_files> [--output-dir=<output_dir>] [--prefixes=<prefixes>] [-v | -vv | -vvv]
+  freebarcodes decode       <barcode_files> <fastq_files> [--output-dir=<output_dir>] [--prefixes=<prefixes>] [--max-prefix-err=<max_prefix_err>] [-v | -vv | -vvv]
   freebarcodes generate     <barcode_length> <num_errors> [--output-dir=<output_dir>] [-v | -vv | -vvv]
   freebarcodes prune        <raw_barcodes_file> <num_errors> [--output-dir=<output_dir>] [-v | -vv | -vvv]
   freebarcodes concatenate  <barcode_files> [--output-dir=<output_dir>] [--max_bc=<max_bc>] [-v | -vv | -vvv]
@@ -22,7 +22,7 @@ import logging
 import os
 from freebarcodes.constants import VERSION
 from freebarcodes.config import CommandLineArguments
-#from freebarcodes.decode import decode_fastqs
+from freebarcodes.decode import decode_fastqs
 from freebarcodes.generate import generate_barcodes 
 from freebarcodes.prune import prune_barcodes
 from freebarcodes.concatenate import concatenate_barcodes
@@ -42,7 +42,7 @@ def main(**kwargs):
     log.debug(docopt_args)
 
     commands = {
-#        'decode': decode_fastqs,
+        'decode': decode_fastqs,
         'generate': generate_barcodes,
         'prune': prune_barcodes,
         'concatenate': concatenate_barcodes

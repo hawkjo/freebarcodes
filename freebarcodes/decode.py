@@ -196,7 +196,7 @@ def load_or_build_and_save_decoder(bc_fpath):
 
 def process_multiple_prefixes(arguments, seq):
     # Multiple options for prefixes, but only one per seq
-    for prefix, max_err in zip(prefixes, max_prefix_err):
+    for prefix, max_err in zip(arguments.prefixes, arguments.max_prefix_err):
         res = editmeasures.prefix_identification(prefix, seq, max_err)
         if res:
             return prefix, res[0]

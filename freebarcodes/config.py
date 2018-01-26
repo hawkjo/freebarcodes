@@ -13,11 +13,11 @@ class CommandLineArguments(object):
     def _comma_delimited_arg(self, key):
         if self._arguments[key]:
             return self._arguments[key].split(',')
-        return None
+        return []
 
     @property
     def barcode_files(self):
-        return self._comma_delimited_arg('<barcode_files>')
+        return [os.path.expanduser(fp) for fp in self._comma_delimited_arg('<barcode_files>')]
 
     @property
     def command(self):
@@ -31,7 +31,7 @@ class CommandLineArguments(object):
 
     @property
     def fastq_files(self):
-        return self._comma_delimited_arg('<fastq_files>')
+        return [os.path.expanduser(fp) for fp in self._comma_delimited_arg('<fastq_files>')]
 
     @property
     def log_level(self):
@@ -48,13 +48,13 @@ class CommandLineArguments(object):
 
     @property
     def output_dir(self):
-        return self._arguments['<output_dir>'] or None
+        return self._arguments['--output-dir'] or '.'
 
     @property
     def prefixes(self):
-        return self._comma_delimited_arg('<prefixes>')
+        return self._comma_delimited_arg('--prefixes')
 
     @property
     def raw_barcodes_file(self):
-        return self._arguments['<raw_barcodes_file>'] or None
+        return os.path.expanduser(self._arguments['<raw_barcodes_file>']) or None
 

@@ -36,10 +36,10 @@ pip install numpy==1.13.3 && pip install -r requirements.txt && python setup.py 
 
 ```
 Usage:
-  freebarcodes.py decode       <barcode_files> <fastq_files> [--output-dir=<output_dir>] [--prefixes=<prefixes>] [-v | -vv | -vvv]
-  freebarcodes.py generate     <barcode_length> <num_errors> [--output-dir=<output_dir>] [-v | -vv | -vvv]
-  freebarcodes.py prune        <raw_barcodes_file> <num_errors> [--output-dir=<output_dir>] [-v | -vv | -vvv]
-  freebarcodes.py concatenate  <barcode_files> [--output-dir=<output_dir>] [-v | -vv | -vvv]
+  freebarcodes decode       <barcode_files> <fastq_files> [--output-dir=<output_dir>] [--prefixes=<prefixes>] [--max-prefix-err=<max_prefix_err>] [-v | -vv | -vvv]
+  freebarcodes generate     <barcode_length> <num_errors> [--output-dir=<output_dir>] [-v | -vv | -vvv]
+  freebarcodes prune        <raw_barcodes_file> <num_errors> [--output-dir=<output_dir>] [-v | -vv | -vvv]
+  freebarcodes concatenate  <barcode_files> [--output-dir=<output_dir>] [--max_bc=<max_bc>] [-v | -vv | -vvv]
 
 Options:
   -h --help     Show this screen.

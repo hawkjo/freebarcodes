@@ -112,3 +112,24 @@ def prefix_identification(prefix_seq, observed_seq, int max_err):
         return best_len, n_err
     else:
         return None
+
+
+cdef int hamming_distance(char *read,
+                          char *adapter,
+                          int read_length,
+                          int adapter_length,
+                          int start,
+                         ):
+    cdef int compare_length = min(adapter_length, read_length - start)
+    cdef int mismatches = 0
+    cdef int i
+
+    for i in range(compare_length):
+        if read[start + i] != adapter[i]:
+            mismatches += 1
+
+    return mismatches
+
+def simple_hamming_distance(first, second):
+    return hamming_distance(first, second, len(first), len(second), 0)
+

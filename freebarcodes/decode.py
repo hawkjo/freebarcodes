@@ -214,7 +214,8 @@ def process_multiple_barcodes(decoders, seq, start=0):
         if i + 1 == len(decoders):
             return bcs
         res = editmeasures.prefix_identification(bc, seq[start:], decoder.max_err)
-        # If it decoded, this is guaranteed to work
+        if not res:
+            return None
         start += res[0]
 
 

@@ -2,11 +2,11 @@
 
 A package for the generation and decoding of FREE divergence error-correcting DNA barcodes, as described in the manuscript:
 
-#### Indel-correcting DNA barcodes for next-generation sequencing
+#### Indel-correcting DNA barcodes for high-throughput sequencing
 
-*John A Hawkins, Stephen K Jones Jr, Ilya J Finkelstein, William H Press*
+**John A Hawkins, Stephen K Jones Jr, Ilya J Finkelstein, William H Press**
 
-**Proc Natl Acad Sci**, June 20, 2018. doi:10.1073/pnas.1802640115.
+*Proc Natl Acad Sci*, June 20, 2018. doi:10.1073/pnas.1802640115.
 
 ### Installation
 

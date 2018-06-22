@@ -4,9 +4,9 @@ A package for the generation and decoding of FREE divergence error-correcting DN
 
 ### Indel-correcting DNA barcodes for high-throughput sequencing
 
-**John A Hawkins, Stephen K Jones Jr, Ilya J Finkelstein, William H Press**
+**John A Hawkins, Stephen K Jones Jr, Ilya J Finkelstein, and William H Press**
 
-*Proc Natl Acad Sci*, June 20, 2018. doi:10.1073/pnas.1802640115.
+*Proc Natl Acad Sci*. June 20, 2018. doi:10.1073/pnas.1802640115.
 
 ### Installation
 

@@ -1,7 +1,7 @@
 import sys
 import itertools
 import numpy as np
-from collections import defaultdict
+from collections import defaultdict, Counter
 import random
 import string
 
@@ -303,3 +303,31 @@ def add_random_freediv_errors(seq, nerr):
             n_del),
         len(seq)
     )
+
+
+def add_correlated_errors(seq, psub, pdel, pins, corr_factor):
+    # Adds errors according to given probability, where if the previous position contained an error
+    # the current position has all probabilities multiplied by corr_factor.
+
+    pi = [pins, pins * corr_factor]
+    pd = [pdel, pdel * corr_factor]
+    psd = [psub + pdel, (psub + pdel) * corr_factor] # Del and sub chosen
+
+    prev_err = 0
+    out = ''
+    for c in seq:
+        while random.random() < pi[prev_err]:
+            out += random.choice(bases)
+            prev_err = 1
+
+        v = random.random()
+        if v < pd[prev_err]:
+            # out += ''
+            prev_err = 1
+        elif v < psd[prev_err]:
+            out += random.choice(bases.replace(c, ''))
+            prev_err = 1
+        else:
+            out += c
+            prev_err = 0
+    return out

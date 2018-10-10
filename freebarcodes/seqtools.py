@@ -331,3 +331,16 @@ def add_correlated_errors(seq, psub, pdel, pins, corr_factor):
             out += c
             prev_err = 0
     return out
+
+
+def sample_and_add_errors(seqs, lbda, psub, pdel, pins, corr_factor):
+    out_seqs = []
+    for seq in seqs:
+        ncopies = np.random.poisson(lbda)
+        for _ in xrange(ncopies):
+            corrupt_seq = add_correlated_errors(seq, psub, pdel, pins, corr_factor)
+            if random.random() < 0.5:
+                corrupt_seq = dna_rev_comp(corrupt_seq)
+            out_seqs.append(corrupt_seq)
+    random.shuffle(out_seqs)
+    return out_seqs

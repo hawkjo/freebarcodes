@@ -11,18 +11,38 @@ bases='ACGT'
 
 dna_complements = string.maketrans('acgtnACGTN', 'tgcanTGCAN')
 def dna_rev_comp(dna_string):
+    """
+    Reverse complement.
+    """
     return dna_string.translate(dna_complements)[::-1]
 
 
-def dna2num(s):
+dna2num_tr = string.maketrans('ACGT', '0123')
+def dna2num(dna_string):
     """
     Convert dna to number where dna is considered base 4 with '0123' = 'ACGT'.
 
         s :str:     Given dna string
     """
-    return sum(bases.index(c) << 2*i for i, c in enumerate(s[::-1]))
+    return int(dna_string.translate(dna2num_tr), 4)
 
 
+digs = string.digits + string.ascii_lowercase
+def to_base(n, b):
+    """
+    Convert integer n to a string in base b.
+
+        n :int:     Integer to convert
+        b :int:     New base
+    """
+    res = ""
+    while n:
+        res += digs[n%b]
+        n /= b
+    return res[::-1] or "0"
+
+
+num2dna_tr = string.maketrans('0123', 'ACGT')
 def num2dna(n, dnalen):
     """
     Convert number to dna of given length where dna is considered base 4 with '0123' = 'ACGT'
@@ -30,7 +50,9 @@ def num2dna(n, dnalen):
         n :int:         Numerical representation of dna string
         dnalen :int:    Length of dna string
     """
-    return ''.join(bases[(n & (3 << i)) >> i] for i in xrange(2*dnalen-2, -1, -2))
+    s = to_base(n, 4).translate(num2dna_tr)
+    padlen = dnalen - len(s)
+    return 'A'*padlen + s
 
 
 def mm_names(ref, seq):

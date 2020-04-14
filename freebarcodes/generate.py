@@ -218,11 +218,3 @@ def generate_barcodes(arguments):
     comp_time = time.time() - start_time
     log.info('Barcode generation time: {}'.format(comp_time))
 
-
-if __name__ == '__main__':
-    usg = '{} <bc_len> <max_err> <out_dir>'.format(sys.argv[0])
-    if len(sys.argv) != len(usg.split()):
-        sys.exit('Usage: {}'.format(usg))
-    bc_len, max_err = map(int, sys.argv[1:3])
-    dpath = sys.argv[3]
-    write_barcodes(bc_len, max_err, dpath)

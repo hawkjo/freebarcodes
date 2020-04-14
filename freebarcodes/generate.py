@@ -5,7 +5,7 @@ import editmeasures
 from seqtools import dna2num, num2dna
 import psutil
 import logging
-from seqiter import idx_possible_barcode_iterator
+from seqiters import idx_possible_barcode_iterator
 
 log = logging.getLogger(__name__)
 

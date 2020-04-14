@@ -69,3 +69,6 @@ class CommandLineArguments(object):
     def raw_barcodes_file(self):
         return os.path.expanduser(self._arguments['<raw_barcodes_file>']) or None
 
+    @property
+    def generate_as_4sets(self):
+        return self._arguments['--4sets']

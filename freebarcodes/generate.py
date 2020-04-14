@@ -2,10 +2,10 @@ import os
 import numpy as np
 import FreeDivSphere
 import editmeasures
-from seqtools import dna2num, num2dna, frac_to_int_max_GC
+from seqtools import bases, dna2num, num2dna, frac_to_int_max_GC
 import psutil
 import logging
-from seqiters import idx_possible_barcode_iterator
+from seqiters import idx_possible_barcode_iterator, idx_seq_iterator_avoiding_prev_bases
 
 log = logging.getLogger(__name__)
 
@@ -37,6 +37,7 @@ class FreeDivBarcodeGenerator(object):
         self._codewords = set()
         self.barcodes = set()
         self.manual_codewords = set()
+        self.dna_barcode_4sets = []
         needed_bytes = 4**self.bc_len
         available_bytes = psutil.virtual_memory().available
         if needed_bytes > available_bytes:
@@ -116,6 +117,56 @@ class FreeDivBarcodeGenerator(object):
                 if len(self.barcodes) >= n_desired_barcodes:
                     return
 
+    def find_barcode_4sets(self, AT_max, GC_max, seqs_so_far=[], prev_spheres=[], tmp_fpath=None):
+        """
+        A barcode 4-set is here defined as a set of four barcodes such that no two barcodes have
+        the same base in the same position. I.e., all four bases are in each position in exactly
+        one barcode.
+        """
+        first_base = bases[len(seqs_so_far)]
+
+        seq_idx_iter_func = idx_seq_iterator_avoiding_prev_bases(
+            self.bc_len,
+            AT_max,
+            GC_max,
+            first_base,
+            seqs_so_far
+        )
+
+        for seq_idx in seq_idx_iter_func():
+            if self._idx_is_available(seq_idx):
+                seq_sphere = set(self.iterate_decode_sphere(seq_idx))
+                for prev_sphere in prev_spheres:
+                    if prev_sphere & seq_sphere:
+                        break
+                else:
+                    new_seqs = seqs_so_far + [num2dna(seq_idx, self.bc_len)]
+                    new_spheres = prev_spheres + [seq_sphere]
+                    if len(new_seqs) == 4:
+                        assert first_base == bases[-1], new_seqs
+                        for seq in new_seqs:
+                            self._add_barcode(dna2num(seq))
+                        if tmp_fpath:
+                            with open(tmp_fpath, 'a') as out:
+                                out.write('\n'.join(new_seqs) + '\n\n')
+                        self.dna_barcode_4sets.append(new_seqs)
+                        log.info(
+                            'Found barcode set {}: {}'.format(len(self.dna_barcode_4sets), new_seqs)
+                        )
+                        return
+                    else:
+                        self.find_barcode_4sets(
+                            AT_max,
+                            GC_max,
+                            new_seqs,
+                            new_spheres,
+                            tmp_fpath
+                        )
+                        if len(new_seqs) > 1:
+                            return
+
+
+
     @property
     def dna_barcodes(self):
         return (num2dna(seq_idx, self.bc_len) for seq_idx in self.barcodes)
@@ -135,6 +186,13 @@ class FreeDivBarcodeGenerator(object):
 
 
 def generate_barcodes(arguments):
+    if arguments.generate_as_4sets:
+        generate_barcode_4sets(arguments)
+    else:
+        generate_normal_barcodes(arguments)
+
+
+def generate_normal_barcodes(arguments):
     import time
     start_time = time.time()
     fpath = os.path.join(arguments.output_dir,
@@ -156,4 +214,35 @@ def generate_barcodes(arguments):
     os.remove(tmp_fpath)
     comp_time = time.time() - start_time
     log.info('Barcode generation time: {}'.format(comp_time))
+
+
+def generate_barcode_4sets(arguments):
+    import time
+    start_time = time.time()
+    fpath = os.path.join(arguments.output_dir,
+                         'barcode_4sets_{}-{}.txt'.format(arguments.barcode_length,
+                                                          arguments.num_errors))
+    alph_fpath = os.path.join(
+        arguments.output_dir,
+        'barcode_4sets_alphabetical_{}-{}.txt'.format(arguments.barcode_length,
+                                                      arguments.num_errors)
+    )
+    tmp_fpath = os.path.join(arguments.output_dir,
+                             'barcode_4sets{}-{}.txt.tmp'.format(arguments.barcode_length,
+                                                                 arguments.num_errors))
+    GC_max = frac_to_int_max_GC(arguments.barcode_length, 0.6)
+    log.info('Barcode length: {}'.format(arguments.barcode_length))
+    log.info('AT/GC max: {}'.format(GC_max))
+    sbg = FreeDivBarcodeGenerator(arguments.barcode_length,
+                                  arguments.num_errors)
+    sbg.find_barcode_4sets(GC_max, GC_max, tmp_fpath=tmp_fpath)
+    with open(fpath, 'w') as out:
+        for bc_4set in sbg.dna_barcode_4sets:
+            out.write('\n'.join(bc_4set) + '\n\n')
+    with open(alph_fpath, 'w') as out:
+        out.write('\n'.join(sorted([bc for bc_4set in sbg.dna_barcode_4sets for bc in bc_4set])))
+    os.remove(tmp_fpath)
+    comp_time = time.time() - start_time
+    log.info('Barcode generation time: {}'.format(comp_time))
+
 

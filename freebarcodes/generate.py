@@ -2,7 +2,7 @@ import os
 import numpy as np
 import FreeDivSphere
 import editmeasures
-from seqtools import dna2num, num2dna
+from seqtools import dna2num, num2dna, frac_to_int_max_GC
 import psutil
 import logging
 from seqiters import idx_possible_barcode_iterator
@@ -143,8 +143,7 @@ def generate_barcodes(arguments):
     tmp_fpath = os.path.join(arguments.output_dir,
                              'barcodes{}-{}.txt.tmp'.format(arguments.barcode_length,
                                                             arguments.num_errors))
-    GC_max = min(range(arguments.barcode_length), key=lambda x:
-                 abs(float(x)/arguments.barcode_length-0.6))
+    GC_max = frac_to_int_max_GC(arguments.barcode_length, 0.6)
     log.info('Barcode length: {}'.format(arguments.barcode_length))
     log.info('AT/GC max: {}'.format(GC_max))
     bc_iter = idx_possible_barcode_iterator(arguments.barcode_length, GC_max, GC_max)

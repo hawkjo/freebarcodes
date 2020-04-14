@@ -55,6 +55,14 @@ def num2dna(n, dnalen):
     return 'A'*padlen + s
 
 
+def frac_to_int_max_GC(k, frac_max_GC):
+    """
+    Takes a fractional max GC value, like 0.6, and returns the integer maximum number of GC bases
+    in a k-mer, length k.
+    """
+    return min(range(k), key=lambda x: abs(float(x)/k-frac_max_GC))
+
+
 def mm_names(ref, seq):
     mms = []
     for i, (c1, c2) in enumerate(zip(ref, seq)):

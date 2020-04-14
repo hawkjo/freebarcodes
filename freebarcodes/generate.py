@@ -102,7 +102,7 @@ class FreeDivBarcodeGenerator(object):
         for seq_idx in self.seq_idx_iter_func():
             if self._idx_is_available(seq_idx):
                 self._add_barcode(seq_idx)
-                log.info('Found barcode {}'.format(len(self.barcodes) + 1))
+                log.info('Found barcode {}'.format(len(self.barcodes)))
                 if tmp_fpath:
                     with open(tmp_fpath, 'a') as out:
                         out.write('{}\n'.format(num2dna(seq_idx, self.bc_len)))

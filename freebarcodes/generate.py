@@ -164,6 +164,8 @@ class FreeDivBarcodeGenerator(object):
                         )
                         if len(new_seqs) > 1:
                             return
+            elif self.reserved_words[seq_idx] == 0:
+                self.reserved_words[seq_idx] = 1
 
 
 

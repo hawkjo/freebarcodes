@@ -117,7 +117,15 @@ class FreeDivBarcodeGenerator(object):
                 if len(self.barcodes) >= n_desired_barcodes:
                     return
 
-    def find_barcode_4sets(self, AT_max, GC_max, seqs_so_far=[], prev_spheres=[], tmp_fpath=None):
+    def find_barcode_4sets(
+            self,
+            AT_max,
+            GC_max,
+            seqs_so_far=[],
+            prev_spheres=[],
+            tmp_fpath=None,
+            last_prev_idx=None,
+            ):
         """
         A barcode 4-set is here defined as a set of four barcodes such that no two barcodes have
         the same base in the same position. I.e., all four bases are in each position in exactly
@@ -132,6 +140,13 @@ class FreeDivBarcodeGenerator(object):
             first_base,
             seqs_so_far
         )
+
+        # Restart previous run (For 'A' seqs only)
+        seq_idx_iter = seq_idx_iter_func()
+        if last_prev_idx is not None:
+            for seq_idx in seq_idx_iter:
+                if seq_idx >= last_prev_idx:
+                    break
 
         for seq_idx in seq_idx_iter_func():
             if self._idx_is_available(seq_idx):
@@ -167,6 +182,32 @@ class FreeDivBarcodeGenerator(object):
             elif self.reserved_words[seq_idx] == 0:
                 self.reserved_words[seq_idx] = 1
 
+
+    def restart_barcode_4sets(self, AT_max, GC_max, prev_bc4sets_fpath, tmp_fpath=None):
+        with open(prev_bc4sets_fpath) as f:
+            while True:
+                try:
+                    seq_4set = [next(f).strip() for _ in range(4)]
+                except StopIteration:
+                    break
+                assert all(len(seq) == self.bc_len for seq in seq_4set), 'Prev bcs not specified length'
+                self.dna_barcode_4sets.append(seq_4set)
+                for seq in seq_4set:
+                    self._add_barcode(dna2num(seq))
+                log.info('Added prev set {}: {}'.format(len(self.dna_barcode_4sets), seq_4set))
+                assert not next(f).strip(), next(f)
+        
+        if tmp_fpath:
+            with open(tmp_fpath, 'w') as out:
+                for seq_4set in self.dna_barcode_4sets:
+                    out.write('\n'.join(seq_4set) + '\n\n')
+
+        self.find_barcode_4sets(
+            AT_max,
+            GC_max,
+            tmp_fpath=tmp_fpath,
+            last_prev_idx=dna2num(self.dna_barcode_4sets[-1][0])
+        )
 
 
     @property
@@ -237,7 +278,11 @@ def generate_barcode_4sets(arguments):
     log.info('AT/GC max: {}'.format(GC_max))
     sbg = FreeDivBarcodeGenerator(arguments.barcode_length,
                                   arguments.num_errors)
-    sbg.find_barcode_4sets(GC_max, GC_max, tmp_fpath=tmp_fpath)
+    if arguments.prev_4sets_fpath:
+        sbg.restart_barcode_4sets(GC_max, GC_max, arguments.prev_4sets_fpath, tmp_fpath)
+    else:
+        sbg.find_barcode_4sets(GC_max, GC_max, tmp_fpath=tmp_fpath)
+
     with open(fpath, 'w') as out:
         for bc_4set in sbg.dna_barcode_4sets:
             out.write('\n'.join(bc_4set) + '\n\n')

@@ -72,3 +72,11 @@ class CommandLineArguments(object):
     @property
     def generate_as_4sets(self):
         return self._arguments['--4sets']
+
+    @property
+    def prev_bc_fpath(self):
+        return self._arguments['--cont']
+
+    @property
+    def prev_4sets_fpath(self):
+        return self._arguments['--cont_4sets']

@@ -89,6 +89,11 @@ def seq_iterator_avoiding_prev_bases(k, AT_max, GC_max, first_base, seqs_so_far=
         for i in range(len(prev_seq)-4):  # Don't allow rev-comp seqs of 3+ bp
             if dna_rev_comp(prev_seq[i+1:i+3]) == prev_seq[-2:]:
                 bad_bases += dna_rev_comp(prev_seq[i])
+        if len(prev_seq) >= 4:
+            for base in [b for b in bases if b not in bad_bases]:
+                rc_seq = dna_rev_comp(prev_seq[-4:] + base)
+                if any(rc_seq in ssf for ssf in seqs_so_far):
+                    bad_bases += base
 
 
         if len(prev_seq) + 1 == k:

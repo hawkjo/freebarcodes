@@ -124,7 +124,7 @@ class FreeDivBarcodeGenerator(object):
             seqs_so_far=[],
             prev_spheres=[],
             tmp_fpath=None,
-            last_prev_idx=None,
+            last_prev_Aidx=None,
             ):
         """
         A barcode 4-set is here defined as a set of four barcodes such that no two barcodes have
@@ -143,12 +143,12 @@ class FreeDivBarcodeGenerator(object):
 
         # Restart previous run (For 'A' seqs only)
         seq_idx_iter = seq_idx_iter_func()
-        if last_prev_idx is not None:
+        if last_prev_Aidx is not None:
             for seq_idx in seq_idx_iter:
-                if seq_idx >= last_prev_idx:
+                if seq_idx >= last_prev_Aidx:
                     break
 
-        for seq_idx in seq_idx_iter_func():
+        for seq_idx in seq_idx_iter:
             if self._idx_is_available(seq_idx):
                 seq_sphere = set(self.iterate_decode_sphere(seq_idx))
                 for prev_sphere in prev_spheres:
@@ -192,21 +192,29 @@ class FreeDivBarcodeGenerator(object):
                     break
                 assert all(len(seq) == self.bc_len for seq in seq_4set), 'Prev bcs not specified length'
                 self.dna_barcode_4sets.append(seq_4set)
-                for seq in seq_4set:
-                    self._add_barcode(dna2num(seq))
-                log.info('Added prev set {}: {}'.format(len(self.dna_barcode_4sets), seq_4set))
                 assert not next(f).strip(), next(f)
         
+        log.info('Read previous barcodes file')
+        
+        for seq_4set in sorted(self.dna_barcode_4sets):
+            for seq in seq_4set:
+                self._add_barcode(dna2num(seq))
+            log.info('Added prev set {}: {}'.format(len(self.dna_barcode_4sets), seq_4set))
+
         if tmp_fpath:
             with open(tmp_fpath, 'w') as out:
-                for seq_4set in self.dna_barcode_4sets:
+                for seq_4set in sorted(self.dna_barcode_4sets):
                     out.write('\n'.join(seq_4set) + '\n\n')
+
+        Aseqs = [seq for seq in self.dna_barcodes if seq.startswith('A')]
+        Aseqs.sort()
+        last_prev_Aidx = dna2num(Aseqs[-1])
 
         self.find_barcode_4sets(
             AT_max,
             GC_max,
             tmp_fpath=tmp_fpath,
-            last_prev_idx=dna2num(self.dna_barcode_4sets[-1][0])
+            last_prev_Aidx=last_prev_Aidx,
         )
 
 

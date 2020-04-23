@@ -1,4 +1,4 @@
-# FreeBarcodes
+﻿# FreeBarcodes
 
 A package for the generation and decoding of FREE divergence error-correcting DNA barcodes, as described in the manuscript:
 
@@ -38,7 +38,7 @@ pip install numpy==1.13.3 && pip install -r requirements.txt && python setup.py 
 ```
 Usage:
   freebarcodes decode       <barcode_files> <fastq_files> [--output-dir=<output_dir>] [--prefixes=<prefixes>] [--max-prefix-err=<max_prefix_err>] [-v | -vv | -vvv]
-  freebarcodes generate     <barcode_length> <num_errors> [--output-dir=<output_dir>] [-v | -vv | -vvv]
+  freebarcodes generate     <barcode_length> <num_errors> [--output-dir=<output_dir>] [--cont=<prev_bc_fpath>] [--4sets] [--cont_4sets=<prev_4sets_fpath>] [-v | -vv | -vvv]
   freebarcodes prune        <raw_barcodes_file> <num_errors> [--output-dir=<output_dir>] [-v | -vv | -vvv]
   freebarcodes concatenate  <barcode_files> [--output-dir=<output_dir>] [--max_bc=<max_bc>] [-v | -vv | -vvv]
 
@@ -83,6 +83,7 @@ Generating new barcodes can be done via the command line using the same algorith
 
 To generate lists using user-specific filtering criteria, a user comfortable in python can create their own iterator of acceptable barcodes and pass it to a `freebarcodes.generate.FreeDivBarcodeGenerator` object to generate a list of valid FREE barcodes. Alternatively, and more simply, one can use the pruning method described below.
 
+
 #### Prune
 
 To prune a set of pre-existing barcodes to a subset of valid FREE divergence barcodes, make a file with one barcode per line and pass it `freebarcodes.py prune`. The user must also specify a number of errors to correct.
@@ -90,6 +91,20 @@ To prune a set of pre-existing barcodes to a subset of valid FREE divergence bar
 #### Concatenate
 
 For experiments where large numbers of barcodes are needed, one can concatenate barcodes and decode them with the decode command above. Any set of barcodes can be concatenated with any other set of barcodes, but in general one will want to filter out certain barcodes that do not go well together, for example, those prone to internal hairpin structure. To concatenate any set of barcodes with any other set or sets of barcodes, filtering according to the same sequencing and synthesis filters as used for barcode generation, use the `freebarcodes.py concatenate` command with the lists of barcodes to concatenate, in order, and separated by commas and no spaces. Note that GC content is not checked, however, as it is already presumed balanced as desired. Barcodes are output as tab delimited sub-barcodes.
+
+#### Barcode 4-sets
+A friend recently requested bespoke barcodes for a microwell plate experiment he was conducting, and I share them here for their interesting properties. These barcodes come in sets of 4, here called "barcode 4-sets", where each 4-set is used in a different microplate well. The key property of each 4-set is that the barcodes must have a different base pair in each position, covering all four possibilities between the four barcodes. For example, 
+```
+ACTTGTTCGT             AGTAACCATG
+CAAGCAGACA     and     CAAGTAATGC
+GTCCTCAGTG             GCCTCTGCAA
+TGGAAGCTAC             TTGCGGTGCT
+```
+are two valid barcode 4-sets: each column contains all four possibilities, ACGT. A valid collection of barcode 4-sets---`barcode_4sets/barcode_4sets_10-1.txt`, for example---can then all be pooled together for sequencing as a valid collection of FREE barcodes.
+
+These barcodes are by default generated with the same sequence restrictions as above (GC content 40-60%, etc.), as well as the additional restriction that no two barcodes in the same 4-set can have more than 4 nucleotides reverse complementarity. 
+
+Pre-generated lists can be found in the `barcode_4sets` folder, where each list has two files, one with the barcodes listed as 4-sets, and one with the barcodes listed alphabetically. The second, alphabetical file should be used for barcode decoding with the normal decoding pipeline, while the first is for experimental setup. Filenames give the barcode length and number of correctible errors. These barcodes were generated using the `freebarcodes generate` command with the `--4sets` flag.
 
 ### Examples
 A couple example fastq files are included in the `examples` folder to demonstrate decoding. The first one is a "standard" example with a simple 8 bp, 2-error correcting barcode at the beginning of each sequence, given in the file `example_8-2_barcodes.fq`. Assuming the `examples` directory as the working directory, the decode command is

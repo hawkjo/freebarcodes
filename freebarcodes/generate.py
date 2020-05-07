@@ -103,7 +103,8 @@ class FreeDivBarcodeGenerator(object):
         for seq_idx in self.seq_idx_iter_func():
             if self._idx_is_available(seq_idx):
                 self._add_barcode(seq_idx)
-                log.info('Found barcode {}'.format(len(self.barcodes)))
+                log.info('Found barcode {}: {}'.format(len(self.barcodes),
+                                                       num2dna(seq_idx, self.bc_len)))
                 if tmp_fpath:
                     with open(tmp_fpath, 'a') as out:
                         out.write('{}\n'.format(num2dna(seq_idx, self.bc_len)))
@@ -116,6 +117,34 @@ class FreeDivBarcodeGenerator(object):
                                                        num2dna(seq_idx, self.bc_len)))
                 if len(self.barcodes) >= n_desired_barcodes:
                     return
+
+    def restart_Conway_closure(self, prev_fpath, tmp_fpath=None):
+        log.info('Restarting {}...'.format(prev_fpath))
+        prev_bc_idxs = [dna2num(line.strip()) for line in open(prev_fpath)]
+        for bc_idx in prev_bc_idxs:
+            self._add_barcode(bc_idx)
+            log.info('Adding previous {}: {}'.format(len(self.barcodes),
+                                                     num2dna(bc_idx, self.bc_len)))
+        with open(tmp_fpath, 'w') as out:
+            for bc_idx in prev_bc_idxs:
+                out.write('{}\n'.format(num2dna(bc_idx, self.bc_len)))
+
+        seq_iter = self.seq_idx_iter_func()
+        max_prev = max(prev_bc_idxs)
+        bc_idx = next(seq_iter)
+        while bc_idx < max_prev:
+            bc_idx = next(seq_iter)
+        log.info('Reached last previous barcode: {}'.format(num2dna(max_prev, self.bc_len)))
+        log.info('Restarting after {}'.format(num2dna(bc_idx, self.bc_len)))
+
+        for seq_idx in seq_iter:
+            if self._idx_is_available(seq_idx):
+                self._add_barcode(seq_idx)
+                log.info('Found barcode {}: {}'.format(len(self.barcodes),
+                                                       num2dna(seq_idx, self.bc_len)))
+                if tmp_fpath:
+                    with open(tmp_fpath, 'a') as out:
+                        out.write('{}\n'.format(num2dna(seq_idx, self.bc_len)))
 
     def find_barcode_4sets(
             self,
@@ -259,7 +288,10 @@ def generate_normal_barcodes(arguments):
     sbg = FreeDivBarcodeGenerator(arguments.barcode_length,
                                   arguments.num_errors,
                                   bc_iter)
-    sbg.Conway_closure(tmp_fpath=tmp_fpath)
+    if arguments.prev_bc_fpath:
+        sbg.restart_Conway_closure(arguments.prev_bc_fpath, tmp_fpath=tmp_fpath)
+    else:
+        sbg.Conway_closure(tmp_fpath=tmp_fpath)
     with open(fpath, 'w') as out:
         out.write('\n'.join(sorted(sbg.dna_barcodes)))
     os.remove(tmp_fpath)

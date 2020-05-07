@@ -318,8 +318,8 @@ def generate_barcode_4sets(arguments):
     log.info('AT/GC max: {}'.format(GC_max))
     sbg = FreeDivBarcodeGenerator(arguments.barcode_length,
                                   arguments.num_errors)
-    if arguments.prev_4sets_fpath:
-        sbg.restart_barcode_4sets(GC_max, GC_max, arguments.prev_4sets_fpath, tmp_fpath)
+    if arguments.prev_bc_fpath:
+        sbg.restart_barcode_4sets(GC_max, GC_max, arguments.prev_bc_fpath, tmp_fpath)
     else:
         sbg.find_barcode_4sets(GC_max, GC_max, tmp_fpath=tmp_fpath)
 

@@ -76,7 +76,3 @@ class CommandLineArguments(object):
     @property
     def prev_bc_fpath(self):
         return self._arguments['--cont']
-
-    @property
-    def prev_4sets_fpath(self):
-        return self._arguments['--cont_4sets']

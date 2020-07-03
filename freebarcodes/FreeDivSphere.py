@@ -1,8 +1,8 @@
 import itertools
 import numpy as np
 from pathos.multiprocessing import ProcessPool
-import freebarcodes.editmeasures
-import freebarcodes.seqtools
+from . import editmeasures
+from . import seqtools
 import logging
 
 log = logging.getLogger(__name__)

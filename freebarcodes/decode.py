@@ -1,12 +1,12 @@
 import os
 import numpy as np
-import freebarcodes.FreeDivSphere
-import freebarcodes.seqtools
+from . import FreeDivSphere
+from . import seqtools
 import h5py
 import time
 import re
 import psutil
-import freebarcodes.editmeasures
+from . import editmeasures
 from Bio import SeqIO
 import logging
 
@@ -237,7 +237,7 @@ def decode_no_prefix_mult_barcode(arguments, decoders, fastq_fpath, out_fpath):
             seq = str(rec.seq)
             bcs = process_multiple_barcodes(decoders, seq)
             if bcs:
-                out.write('\t'.join([rec.id] + bcs + [seq]) + '\n')
+                out.write('\t'.join([rec.id] + bcs.decode('ascii') + [seq]) + '\n')
 
 
 def decode_one_prefix_one_barcode(arguments, decoders, fastq_fpath, out_fpath):
@@ -253,7 +253,7 @@ def decode_one_prefix_one_barcode(arguments, decoders, fastq_fpath, out_fpath):
             prefix_len, _ = res
             bc = decoder.decode(seq[prefix_len:prefix_len + decoder.cw_len])
             if bc:
-                out.write('\t'.join([rec.id, prefix, bc, seq]) + '\n')
+                out.write('\t'.join([rec.id, prefix, bc.decode('ascii'), seq]) + '\n')
 
 
 def decode_one_prefix_mult_barcode(arguments, decoders, fastq_fpath, out_fpath):
@@ -268,7 +268,7 @@ def decode_one_prefix_mult_barcode(arguments, decoders, fastq_fpath, out_fpath):
             prefix_len, _ = res
             bcs = process_multiple_barcodes(decoders, seq, prefix_len)
             if bcs:
-                out.write('\t'.join([rec.id, prefix] + bcs + [seq]) + '\n')
+                out.write('\t'.join([rec.id, prefix] + bcs.decode('ascii') + [seq]) + '\n')
 
 
 def decode_mult_prefix_one_barcode(arguments, decoders, fastq_fpath, out_fpath):
@@ -281,7 +281,7 @@ def decode_mult_prefix_one_barcode(arguments, decoders, fastq_fpath, out_fpath):
                 continue
             bc = decoder.decode(seq[prefix_len:prefix_len + decoder.cw_len])
             if bc:
-                out.write('\t'.join([rec.id, prefix, bc, seq]) + '\n')
+                out.write('\t'.join([rec.id, prefix, bc.decode('ascii'), seq]) + '\n')
 
 
 def decode_mult_prefix_mult_barcode(arguments, decoders, fastq_fpath, out_fpath):
@@ -293,4 +293,4 @@ def decode_mult_prefix_mult_barcode(arguments, decoders, fastq_fpath, out_fpath)
                 continue
             bcs = process_multiple_barcodes(decoders, seq, prefix_len)
             if bcs:
-                out.write('\t'.join([rec.id, prefix] + bcs + [seq]) + '\n')
+                out.write('\t'.join([rec.id, prefix] + bcs.decode('ascii') + [seq]) + '\n')

@@ -1,7 +1,7 @@
 import itertools
 import random
 import numpy as np
-from freebarcodes.seqtools import bases, dna_rev_comp, dna2num
+from .seqtools import bases, dna_rev_comp, dna2num
 
 def possible_barcode_iterator(k, AT_max, GC_max):
     """

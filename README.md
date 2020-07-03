@@ -109,11 +109,11 @@ Pre-generated lists can be found in the `barcode_4sets` folder, where each list 
 ### Examples
 A couple example fastq files are included in the `examples` folder to demonstrate decoding. The first one is a "standard" example with a simple 8 bp, 2-error correcting barcode at the beginning of each sequence, given in the file `example_8-2_barcodes.fq`. Assuming the `examples` directory as the working directory, the decode command is
 ```
-freebarcodes decode ../barcodes/barcodes8-2.txt example_8-2_barcodes.fq
+freebarcodes decode barcodes/barcodes8-2.txt examples/example_8-2_barcodes.fq
 ```
 which outputs the file `example_8-2_barcodes_decoded.txt`.
 
 The second example, `example_8-2_barcodes_prefixes_TCTACTCTCCATACG_CACTTGGATC.fq`, shows proper usage of the prefix - detecting feature. Again, we use the length 8, 2-error correcting code, but this time we have two "primer" sequences, exactly one of which is present in each read before the barcode. Note that the two primer sequences are different lengths: 15 and 10. We also must specify a maximum number of errors to allow, for which we choose 3 and 2 respectively. The command is then
 ```
-freebarcodes decode ../barcodes/barcodes8-2.txt example_8-2_barcodes_prefixes_TCTACTCTCCATACG_CACTTGGATC.fq --prefixes=TCTACTCTCCATACG,CACTTGGATC --max-prefix-err=3,2
+freebarcodes decode barcodes/barcodes8-2.txt examples/example_8-2_barcodes_prefixes_TCTACTCTCCATACG_CACTTGGATC.fq --prefixes=TCTACTCTCCATACG,CACTTGGATC --max-prefix-err=3,2
 ```

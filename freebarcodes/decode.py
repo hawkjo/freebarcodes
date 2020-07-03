@@ -92,14 +92,14 @@ class FreeDivBarcodeDecoder(object):
 
     def save_codebook(self, out_fpath):
         dtype = 'S{:d}'.format(self.cw_len)
-        with h5py.File(out_fpath) as f:
-            f.create_dataset('codewords', (len(self._codewords),), dtype, self._codewords)
-            f.create_dataset('codebook', (len(self._codebook),), self._codebook.dtype, self._codebook)
+        with h5py.File(out_fpath, 'w') as f:
+            f.create_dataset(b'codewords', (len(self._codewords),), dtype, [i.encode('ascii') for i in self._codewords])
+            f.create_dataset(b'codebook', (len(self._codebook),), self._codebook.dtype, self._codebook)
             f.attrs['max_err'] = self.max_err
 
 
     def load_codebook(self, codebook_fpath):
-        with h5py.File(codebook_fpath) as f:
+        with h5py.File(codebook_fpath, 'r') as f:
             self.max_err = int(f.attrs['max_err'])
             self._codewords = list(f['codewords'])
             self._codebook = np.array(f['codebook'])
@@ -121,7 +121,7 @@ class FreeDivBarcodeDecoder(object):
         bcs = [seqtools.add_random_freediv_errors(cw, self.max_err) for cw in ground_truth]
 
         start_time = time.time()
-        decoded = map(self.decode, bcs)
+        decoded = list(map(self.decode, bcs))
         end_time = time.time()
         decode_time = end_time - start_time
 
@@ -159,7 +159,7 @@ def decode_fastqs(arguments):
     }
     log.debug('Decode function: {}'.format(decode_fastq_func[count_tuple].__name__))
 
-    decoders = map(load_or_build_and_save_decoder, arguments.barcode_files)
+    decoders = list(map(load_or_build_and_save_decoder, arguments.barcode_files))
     for fastq_fpath in arguments.fastq_files:
         fastq_fname = os.path.split(fastq_fpath)[1]
         fastq_bname = os.path.splitext(fastq_fname)[0]
@@ -224,9 +224,11 @@ def decode_no_prefix_one_barcode(arguments, decoders, fastq_fpath, out_fpath):
     with open(out_fpath, 'w') as out:
         for rec in SeqIO.parse(open(fastq_fpath), 'fastq'):
             seq = str(rec.seq)
+            if 'N' in seq:
+                continue
             bc = decoder.decode(seq[:decoder.cw_len])
             if bc:
-                out.write('\t'.join([rec.id, bc, seq]) + '\n')
+                out.write('\t'.join([rec.id, bc.decode('ascii'), seq]) + '\n')
 
 
 def decode_no_prefix_mult_barcode(arguments, decoders, fastq_fpath, out_fpath):

@@ -15,7 +15,7 @@ if __name__ == '__main__':
               'freebarcodes = freebarcodes.main:main'
           ]
         },
-        ext_modules=cythonize('freebarcodes/editmeasures.pyx'),
+        ext_modules=cythonize('freebarcodes/editmeasures.pyx', compiler_directives={'language_level' : '3'}),
         include_package_data=True,
         include_dirs=[np.get_include()],
         zip_safe=False,
@@ -26,7 +26,7 @@ if __name__ == '__main__':
                      'Natural Language :: English',
                      'Intended Audience :: Science/Research',
                      'Operating System :: POSIX :: Linux',
-                     'Programming Language :: Python :: 2.7',
+                     'Programming Language :: Python :: 3.7',
                      'Topic :: Scientific/Engineering :: Bio-Informatics',
                      ]
     )

@@ -1,12 +1,12 @@
 import os
 import numpy as np
-import FreeDivSphere
-import seqtools
+import freebarcodes.FreeDivSphere
+import freebarcodes.seqtools
 import h5py
 import time
 import re
 import psutil
-import editmeasures
+import freebarcodes.editmeasures
 from Bio import SeqIO
 import logging
 

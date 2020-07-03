@@ -1,11 +1,11 @@
 import os
 import numpy as np
-import FreeDivSphere
-import editmeasures
-from seqtools import bases, dna2num, num2dna, frac_to_int_max_GC
+import freebarcodes.FreeDivSphere
+import freebarcodes.editmeasures
+from freebarcodes.seqtools import bases, dna2num, num2dna, frac_to_int_max_GC
 import psutil
 import logging
-from seqiters import idx_possible_barcode_iterator, idx_seq_iterator_avoiding_prev_bases
+from freebarcodes.seqiters import idx_possible_barcode_iterator, idx_seq_iterator_avoiding_prev_bases
 
 log = logging.getLogger(__name__)
 

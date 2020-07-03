@@ -1,7 +1,7 @@
 import sys
 import os
-import generate
-import seqtools
+import freebarcodes.generate
+import freebarcodes.seqtools
 import time
 import logging
 

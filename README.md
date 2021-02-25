@@ -55,7 +55,7 @@ Commands:
 
 #### Pre-generated barcode lists
 
-Most users will be able to use one of the pre-generated lists of barcodes included in  `freebarcodes/barcodes/` for their experiments. Barcodes are stored in lists according to barcode length and number of errors corrected. For example, barcodes of length 15 which correct up to 2 errors are stored in the file `barcodes15-2.txt`. Each line of the file contains a unique barcode.
+Most users will be able to use one of the pre-generated lists of barcodes included in  `freebarcodes/barcodes/` for their experiments. Barcodes are stored in lists according to barcode length and number of errors corrected. For example, barcodes of length 15 which correct up to 2 errors are stored in the file `barcodes15-2.txt`. Each line of the file contains a unique barcode. The `freebarcodes/barcodes/alt_lists` folder contains alternate, non-intersecting lists of barcodes for some of those in `freebarcodes/barcodes/`.
 
 #### Decode
 

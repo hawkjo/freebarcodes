@@ -225,10 +225,10 @@ class FreeDivBarcodeGenerator(object):
         
         log.info('Read previous barcodes file')
         
-        for seq_4set in sorted(self.dna_barcode_4sets):
+        for i, seq_4set in enumerate(sorted(self.dna_barcode_4sets)):
             for seq in seq_4set:
                 self._add_barcode(dna2num(seq))
-            log.info('Added prev set {}: {}'.format(len(self.dna_barcode_4sets), seq_4set))
+            log.info('Added prev set {}: {}'.format(i+1, seq_4set))
 
         if tmp_fpath:
             with open(tmp_fpath, 'w') as out:

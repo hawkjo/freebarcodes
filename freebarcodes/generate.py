@@ -146,6 +146,15 @@ class FreeDivBarcodeGenerator(object):
                     with open(tmp_fpath, 'a') as out:
                         out.write('{}\n'.format(num2dna(seq_idx, self.bc_len)))
 
+
+    def exclude_barcodes(self, exclude_fpath):
+        log.info('Excluding barcodes in {}...'.format(exclude_fpath))
+        exclude_bc_idxs = [dna2num(line.strip()) for line in open(exclude_fpath)]
+        for seq_idx in exclude_bc_idxs:
+            assert self.reserved_words[seq_idx] == 0, num2dna(seq_idx, self.bc_len)
+            self.reserved_words[seq_idx] = 1
+
+
     def find_barcode_4sets(
             self,
             AT_max,
@@ -288,6 +297,8 @@ def generate_normal_barcodes(arguments):
     sbg = FreeDivBarcodeGenerator(arguments.barcode_length,
                                   arguments.num_errors,
                                   bc_iter)
+    if arguments.exclude_bc_fpath:
+        sbg.exclude_barcodes(arguments.exclude_bc_fpath)
     if arguments.prev_bc_fpath:
         sbg.restart_Conway_closure(arguments.prev_bc_fpath, tmp_fpath=tmp_fpath)
     else:
@@ -318,6 +329,8 @@ def generate_barcode_4sets(arguments):
     log.info('AT/GC max: {}'.format(GC_max))
     sbg = FreeDivBarcodeGenerator(arguments.barcode_length,
                                   arguments.num_errors)
+    if arguments.exclude_bc_fpath:
+        sbg.exclude_barcodes(arguments.exclude_bc_fpath)
     if arguments.prev_bc_fpath:
         sbg.restart_barcode_4sets(GC_max, GC_max, arguments.prev_bc_fpath, tmp_fpath)
     else:

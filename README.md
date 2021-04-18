@@ -38,7 +38,7 @@ pip install numpy==1.13.3 && pip install -r requirements.txt && python setup.py 
 ```
 Usage:
   freebarcodes decode       <barcode_files> <fastq_files> [--output-dir=<output_dir>] [--prefixes=<prefixes>] [--max-prefix-err=<max_prefix_err>] [-v | -vv | -vvv]
-  freebarcodes generate     <barcode_length> <num_errors> [--output-dir=<output_dir>] [--cont=<prev_bc_fpath>] [--4sets] [--cont_4sets=<prev_4sets_fpath>] [-v | -vv | -vvv]
+  freebarcodes generate     <barcode_length> <num_errors> [--output-dir=<output_dir>] [--cont=<prev_bc_fpath>] [--exclude=<exclude_bc_fpath>] [--4sets] [--cont_4sets=<prev_4sets_fpath>] [-v | -vv | -vvv]
   freebarcodes prune        <raw_barcodes_file> <num_errors> [--output-dir=<output_dir>] [-v | -vv | -vvv]
   freebarcodes concatenate  <barcode_files> [--output-dir=<output_dir>] [--max_bc=<max_bc>] [-v | -vv | -vvv]
 
@@ -55,7 +55,7 @@ Commands:
 
 #### Pre-generated barcode lists
 
-Most users will be able to use one of the pre-generated lists of barcodes included in  `freebarcodes/barcodes/` for their experiments. Barcodes are stored in lists according to barcode length and number of errors corrected. For example, barcodes of length 15 which correct up to 2 errors are stored in the file `barcodes15-2.txt`. Each line of the file contains a unique barcode.
+Most users will be able to use one of the pre-generated lists of barcodes included in  `freebarcodes/barcodes/` for their experiments. Barcodes are stored in lists according to barcode length and number of errors corrected. For example, barcodes of length 15 which correct up to 2 errors are stored in the file `barcodes15-2.txt`. Each line of the file contains a unique barcode. The `freebarcodes/barcodes/alt_lists` folder contains alternate, non-intersecting lists of barcodes for some of those in `freebarcodes/barcodes/`.
 
 #### Decode
 
@@ -82,6 +82,8 @@ Generating new barcodes can be done via the command line using the same algorith
 * No GGC (Illumina error motif)
 
 To generate lists using user-specific filtering criteria, a user comfortable in python can create their own iterator of acceptable barcodes and pass it to a `freebarcodes.generate.FreeDivBarcodeGenerator` object to generate a list of valid FREE barcodes. Alternatively, and more simply, one can use the pruning method described below.
+
+To generate lists using the above filtering criteria but excluding a certain set of barcodes, make a file with one undesired barcode per line and use the `--exclude` flag.
 
 
 #### Prune

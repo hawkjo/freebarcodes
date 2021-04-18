@@ -76,3 +76,7 @@ class CommandLineArguments(object):
     @property
     def prev_bc_fpath(self):
         return self._arguments['--cont']
+
+    @property
+    def exclude_bc_fpath(self):
+        return self._arguments['--exclude']

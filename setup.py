@@ -20,7 +20,7 @@ if __name__ == '__main__':
         include_dirs=[np.get_include()],
         zip_safe=False,
         description='FREE Divergence Error-Correcting DNA Barcodes',
-        url='http://hawkjo.github.io',
+        url='https://github.com/hawkjo/freebarcodes',
         keywords=['DNA', 'NGS', 'bioinformatics', 'barcodes'],
         python_requires='>=2.7,!=3.*',
         classifiers=['Development Status :: 3 - Alpha',

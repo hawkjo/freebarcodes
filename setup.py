@@ -22,6 +22,7 @@ if __name__ == '__main__':
         author='John Hawkins',
         description='FREE Divergence Error-Correcting DNA Barcodes',
         url='https://github.com/hawkjo/freebarcodes',
+        download_url='https://github.com/hawkjo/freebarcodes/archive/refs/tags/v2.0.tar.gz',
         keywords=['DNA', 'NGS', 'bioinformatics', 'barcodes'],
         python_requires='>=2.7,!=3.*',
         classifiers=['Development Status :: 3 - Alpha',

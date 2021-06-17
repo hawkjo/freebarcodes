@@ -19,7 +19,6 @@ if __name__ == '__main__':
         include_package_data=True,
         include_dirs=[np.get_include()],
         zip_safe=False,
-        author='John Hawkins',
         description='FREE Divergence Error-Correcting DNA Barcodes',
         url='https://github.com/hawkjo/freebarcodes',
         download_url='https://github.com/hawkjo/freebarcodes/archive/refs/tags/v2.1.tar.gz',

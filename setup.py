@@ -19,6 +19,7 @@ if __name__ == '__main__':
         include_package_data=True,
         include_dirs=[np.get_include()],
         zip_safe=False,
+        author='John Hawkins',
         description='FREE Divergence Error-Correcting DNA Barcodes',
         url='https://github.com/hawkjo/freebarcodes',
         keywords=['DNA', 'NGS', 'bioinformatics', 'barcodes'],

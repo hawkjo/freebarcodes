@@ -23,14 +23,14 @@ if __name__ == '__main__':
         author_email='hawkjo@gmail.com',
         description='FREE Divergence Error-Correcting DNA Barcodes',
         url='https://github.com/hawkjo/freebarcodes',
-        download_url='https://github.com/hawkjo/freebarcodes/archive/refs/tags/v2.1.tar.gz',
+        download_url='https://github.com/hawkjo/freebarcodes/archive/refs/tags/v3.0.tar.gz',
         keywords=['DNA', 'NGS', 'bioinformatics', 'barcodes'],
-        python_requires='>=2.7,!=3.*',
+        python_requires='>=3.0',
         classifiers=['Development Status :: 3 - Alpha',
                      'Natural Language :: English',
                      'Intended Audience :: Science/Research',
                      'Operating System :: POSIX :: Linux',
-                     'Programming Language :: Python :: 2.7',
+                     'Programming Language :: Python :: 3',
                      'Topic :: Scientific/Engineering :: Bio-Informatics',
                      ]
     )

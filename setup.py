@@ -1,5 +1,5 @@
 from setuptools import setup
-from .constants import VERSION
+from freebarcodes.constants import VERSION
 from distutils.extension import Extension
 from Cython.Build import cythonize
 import numpy as np

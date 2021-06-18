@@ -9,7 +9,7 @@ import string
 bases='ACGT'
 
 
-dna_complements = string.maketrans('acgtnACGTN', 'tgcanTGCAN')
+dna_complements = str.maketrans('acgtnACGTN', 'tgcanTGCAN')
 def dna_rev_comp(dna_string):
     """
     Reverse complement.
@@ -17,7 +17,7 @@ def dna_rev_comp(dna_string):
     return dna_string.translate(dna_complements)[::-1]
 
 
-dna2num_tr = string.maketrans('ACGT', '0123')
+dna2num_tr = str.maketrans('ACGT', '0123')
 def dna2num(dna_string):
     """
     Convert dna to number where dna is considered base 4 with '0123' = 'ACGT'.
@@ -42,7 +42,7 @@ def to_base(n, b):
     return res[::-1] or "0"
 
 
-num2dna_tr = string.maketrans('0123', 'ACGT')
+num2dna_tr = str.maketrans('0123', 'ACGT')
 def num2dna(n, dnalen):
     """
     Convert number to dna of given length where dna is considered base 4 with '0123' = 'ACGT'

@@ -1,9 +1,9 @@
 import itertools
 import numpy as np
-from pathos.multiprocessing import ProcessPool
-import editmeasures
-import seqtools
 import logging
+from pathos.multiprocessing import ProcessPool
+from . import editmeasures
+from . import seqtools
 
 log = logging.getLogger(__name__)
 

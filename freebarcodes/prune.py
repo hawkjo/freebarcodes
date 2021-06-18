@@ -1,9 +1,9 @@
 import sys
 import os
-import generate
-import seqtools
 import time
 import logging
+from . import generate
+from . import seqtools
 
 log = logging.getLogger(__name__)
 

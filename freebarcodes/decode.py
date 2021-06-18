@@ -1,14 +1,14 @@
 import os
 import numpy as np
-import FreeDivSphere
-import seqtools
 import h5py
 import time
 import re
 import psutil
-import editmeasures
-from Bio import SeqIO
 import logging
+from Bio import SeqIO
+from . import FreeDivSphere
+from . import seqtools
+from . import editmeasures
 
 log = logging.getLogger(__name__)
 

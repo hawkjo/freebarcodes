@@ -121,7 +121,7 @@ class FreeDivBarcodeDecoder(object):
         bcs = [seqtools.add_random_freediv_errors(cw, self.max_err) for cw in ground_truth]
 
         start_time = time.time()
-        decoded = map(self.decode, bcs)
+        decoded = list(map(self.decode, bcs))
         end_time = time.time()
         decode_time = end_time - start_time
 
@@ -159,7 +159,7 @@ def decode_fastqs(arguments):
     }
     log.debug('Decode function: {}'.format(decode_fastq_func[count_tuple].__name__))
 
-    decoders = map(load_or_build_and_save_decoder, arguments.barcode_files)
+    decoders = list(map(load_or_build_and_save_decoder, arguments.barcode_files))
     for fastq_fpath in arguments.fastq_files:
         fastq_fname = os.path.split(fastq_fpath)[1]
         fastq_bname = os.path.splitext(fastq_fname)[0]

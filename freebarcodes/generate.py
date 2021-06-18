@@ -50,7 +50,7 @@ class FreeDivBarcodeGenerator(object):
         if seq_idx_iter_func is not None:
             self.seq_idx_iter_func = seq_idx_iter_func
         else:
-            self.seq_idx_iter_func = lambda : xrange(4**self.bc_len)
+            self.seq_idx_iter_func = lambda : range(4**self.bc_len)
 
     def _add_codeword(self, cw_idx):
         assert isinstance(cw_idx, int), '{} is not a valid codeword. Must be int'.format(cw_idx)

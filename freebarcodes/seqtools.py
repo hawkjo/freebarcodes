@@ -38,7 +38,7 @@ def to_base(n, b):
     res = ""
     while n:
         res += digs[n%b]
-        n /= b
+        n //= b
     return res[::-1] or "0"
 
 

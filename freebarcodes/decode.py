@@ -91,6 +91,7 @@ class FreeDivBarcodeDecoder(object):
                         self.max_err_detect,
                         self.max_err_decode,
                         )
+                    )
 
             # Iterate detect spheres, rejecting conflicts
             for i, cw in enumerate(self._codewords):

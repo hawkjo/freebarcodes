@@ -29,38 +29,120 @@ class FreeDivBarcodeDecoder(object):
     def __init__(self):
         pass
 
-    def build_codebook_from_cw_fpath(self, cw_fpath, max_err):
+    def build_codebook_from_cw_fpath(self, cw_fpath, max_err_decode):
         """
         Builds codebook given path to file with list of one barcode per line.
 
             cw_fpath :str: barcode file path
-            max_err :int: max correctible error
+            max_err_decode :int: max correctible error
         """
         codewords = [line.strip() for line in open(cw_fpath)]
-        self.build_codebook_from_codewords(codewords, max_err)
+        self.build_codebook_from_codewords(codewords, max_err_decode)
 
-    def build_codebook_from_codewords(self, codewords, max_err):
+    def build_codebook_from_codewords(self, codewords, max_err_decode):
         """
         Builds codebook given list or set of codewords
 
             codewords :iterable: list or set of codewords
-            max_err :int: max correctible error
+            max_err_decode :int: max correctible error
         """
-        self.max_err = max_err
+        self.max_err_decode = max_err_decode
         self._codewords = list(codewords)
         self._codewords.sort()
         self._set_cw_len()
+        self._initialize_codebook()
 
-        if len(self._codewords) < 2**8:
+        for i, cw in enumerate(self._codewords):
+            cw_idx = i + 1
+            for seq in FreeDivSphere.FreeDivSphere(cw, self.max_err_decode):
+                seq_idx = seqtools.dna2num(seq)
+                self._codebook[seq_idx] = cw_idx
+
+    def build_codebook_from_random_codewords(self, codewords, max_err_decode, max_err_detect=None):
+        """
+        Builds codebook given list or set of random, undesigned codewords
+
+            codewords :iterable: list or set of codewords
+            max_err_decode :int: max correctible error
+            max_err_detect :int: max error to detect and reject conflicts  (>max_err_decode)
+        """
+        self.max_err_decode = max_err_decode
+        self.max_err_detect = max_err_detect
+        self._codewords = list(codewords)
+        self._codewords.sort()
+        self._set_cw_len()
+        self._initialize_codebook()
+
+        # Assign decode spheres proper index, rejecting conflicts
+        reject_idx = len(self._codewords) + 1
+        for i, cw in enumerate(self._codewords):
+            cd_idx = i + 1
+            for seq in FreeDivSphere.FreeDivSphere(cw, self.max_err_decode):
+                seq_idx = seqtools.dna2num(seq)
+                if self._codebook[seq_idx] == 0: # unassigned
+                    self._codebook[seq_idx] = cw_idx
+                elif self._codebook[seq_idx] != cw_idx: # assigned to other bc (reject)
+                    self._codebook[seq_idx] = reject_idx
+
+        if self.max_err_detect is not None:
+            if self.max_err_detect <= self.max_err_decode:
+                raise ValueError(
+                    'max_err_detect ({}) must be larger than max_err_decode ({})'.format(
+                        self.max_err_detect,
+                        self.max_err_decode,
+                        )
+
+            # Iterate detect spheres, rejecting conflicts
+            for i, cw in enumerate(self._codewords):
+                cd_idx = i + 1
+                for seq in FreeDivSphere.FreeDivSphere(
+                        cw, 
+                        min_r=self.max_err_decode+1,
+                        r=self.max_err_detect
+                        ):
+                    seq_idx = seqtools.dna2num(seq)
+                    if self._codebook[seq_idx] != 0 and self._codebook[seq_idx] != cw_idx:
+                        self._codebook[seq_idx] = reject_idx
+
+        # Finally, set rejected idxs to zero for downstream processing
+        self._codebook[self._codebook == reject_idx] = 0
+
+
+    def analyze_random_codeword_codebook(self):
+        """
+        Return stats_given_cw with entries 'good', 'bad', 'total', and 'self'
+        """
+        stats_given_cw = {}
+        for i, cw in enumerate(self._codewords):
+            cd_idx = i + 1
+            stats = {'good': 0, 'bad': 0}
+            if self._codebook[seqtools.dna2num(cw)] == cw_idx:
+                stats['self'] = 'good'
+            else:
+                stats['self'] = 'bad'
+            for seq in FreeDivSphere.FreeDivSphere(cw, self.max_err_decode):
+                seq_idx = seqtools.dna2num(seq)
+                if self._codebook[seq_idx] == cw_idx: 
+                    stats['good'] += 1
+                else:
+                    stats['bad'] += 1
+            stats['total'] = stats['good'] + stats['bad']
+            stats_given_cw[cw] = stats
+        return stats_given_cw
+
+
+    def _initialize_codebook(self):
+        # need space for codewords + 2 (unassigned, conflict => ignore)
+        if len(self._codewords) + 2 <= 2**8:
             dtype = np.uint8
             cw_bytes = 1
-        elif len(self._codewords) < 2**16:
+        elif len(self._codewords) + 2 <= 2**16:
             dtype = np.uint16
             cw_bytes = 2
-        elif len(self._codewords) < 2**32:
+        elif len(self._codewords) + 2 <= 2**32:
             dtype = np.uint32
             cw_bytes = 4
-        elif len(self._codewords) < 2**64:
+        elif len(self._codewords) + 2 <= 2**64:
             dtype = np.uint64
             cw_bytes = 8
         else:
@@ -77,12 +159,6 @@ class FreeDivBarcodeDecoder(object):
                 
         self._codebook = np.zeros((space_size,), dtype=dtype)
 
-        for i, cw in enumerate(self._codewords):
-            cw_idx = i + 1
-            for seq in FreeDivSphere.FreeDivSphere(cw, self.max_err):
-                seq_idx = seqtools.dna2num(seq)
-                self._codebook[seq_idx] = cw_idx
-
 
     def _set_cw_len(self):
         assert len(set(map(len, self._codewords))) == 1, \
@@ -95,12 +171,12 @@ class FreeDivBarcodeDecoder(object):
         with h5py.File(out_fpath, 'w') as f:
             f.create_dataset('codewords', (len(self._codewords),), dtype, self._codewords)
             f.create_dataset('codebook', (len(self._codebook),), self._codebook.dtype, self._codebook)
-            f.attrs['max_err'] = self.max_err
+            f.attrs['max_err_decode'] = self.max_err_decode
 
 
     def load_codebook(self, codebook_fpath):
         with h5py.File(codebook_fpath, 'r') as f:
-            self.max_err = int(f.attrs['max_err'])
+            self.max_err_decode = int(f.attrs['max_err_decode'])
             self._codewords = [bc.decode('ascii') for bc in f['codewords']]
             self._codebook = np.array(f['codebook'])
         self._set_cw_len()
@@ -118,7 +194,7 @@ class FreeDivBarcodeDecoder(object):
 
     def time_decoder(self, n_decodes=1000):
         ground_truth = np.random.choice(self._codewords, n_decodes)
-        bcs = [seqtools.add_random_freediv_errors(cw, self.max_err) for cw in ground_truth]
+        bcs = [seqtools.add_random_freediv_errors(cw, self.max_err_decode) for cw in ground_truth]
 
         start_time = time.time()
         decoded = list(map(self.decode, bcs))
@@ -213,7 +289,7 @@ def process_multiple_barcodes(decoders, seq, start=0):
         bcs.append(bc)
         if i + 1 == len(decoders):
             return bcs
-        res = editmeasures.prefix_identification(bc, seq[start:], decoder.max_err)
+        res = editmeasures.prefix_identification(bc, seq[start:], decoder.max_err_decode)
         if not res:
             return None
         start += res[0]

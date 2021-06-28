@@ -76,7 +76,7 @@ class FreeDivBarcodeDecoder(object):
         # Assign decode spheres proper index, rejecting conflicts
         reject_idx = len(self._codewords) + 1
         for i, cw in enumerate(self._codewords):
-            cd_idx = i + 1
+            cw_idx = i + 1
             for seq in FreeDivSphere.FreeDivSphere(cw, self.max_err_decode):
                 seq_idx = seqtools.dna2num(seq)
                 if self._codebook[seq_idx] == 0: # unassigned
@@ -95,7 +95,7 @@ class FreeDivBarcodeDecoder(object):
 
             # Iterate detect spheres, rejecting conflicts
             for i, cw in enumerate(self._codewords):
-                cd_idx = i + 1
+                cw_idx = i + 1
                 for seq in FreeDivSphere.FreeDivSphere(
                         cw, 
                         min_r=self.max_err_decode+1,
@@ -115,7 +115,7 @@ class FreeDivBarcodeDecoder(object):
         """
         stats_given_cw = {}
         for i, cw in enumerate(self._codewords):
-            cd_idx = i + 1
+            cw_idx = i + 1
             stats = {'good': 0, 'bad': 0}
             if self._codebook[seqtools.dna2num(cw)] == cw_idx:
                 stats['self'] = 'good'

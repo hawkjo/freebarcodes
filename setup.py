@@ -37,7 +37,7 @@ if __name__ == '__main__':
             "pathos>=0.2.1",
             "psutil>=5.8.0",
             "h5py>=3.2.1",
-            "numpy>=1.19.0",
+            "numpy>=1.20.0",
             "docopt>=0.6.2",
             "biopython>=1.70",
             "cython>=0.29.23",

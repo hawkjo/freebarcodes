@@ -1,9 +1,9 @@
 import sys
 import os
-import generate
-import seqtools
 import time
 import logging
+from . import generate
+from . import seqtools
 
 log = logging.getLogger(__name__)
 
@@ -34,7 +34,7 @@ def make_iterator(raw_fpath):
     bc_list = [line.strip() for line in open(raw_fpath)]
     bc_len = len(bc_list[0])
     assert all(len(bc) == bc_len for bc in bc_list), set(map(len, bc_list))
-    GC_max = min(range(bc_len), key=lambda x: abs(float(x)/bc_len-0.6))
+    GC_max = min(list(range(bc_len)), key=lambda x: abs(float(x)/bc_len-0.6))
     is_good_seq = make_is_good_seq(bc_len - GC_max, GC_max)
 
     log.info('Barcode length: {}'.format(bc_len))

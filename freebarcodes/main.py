@@ -20,17 +20,17 @@ Commands:
 """
 import logging
 import os
-from freebarcodes.constants import VERSION
-from freebarcodes.config import CommandLineArguments
-from freebarcodes.decode import decode_fastqs
-from freebarcodes.generate import generate_barcodes
-from freebarcodes.prune import prune_barcodes
-from freebarcodes.concatenate import concatenate_barcodes
 from docopt import docopt
+from .__init__ import __version__
+from .config import CommandLineArguments
+from .decode import decode_fastqs
+from .generate import generate_barcodes
+from .prune import prune_barcodes
+from .concatenate import concatenate_barcodes
 
 
 def main(**kwargs):
-    docopt_args = docopt(__doc__, version=VERSION)
+    docopt_args = docopt(__doc__, version=__version__)
     arguments = CommandLineArguments(docopt_args, os.getcwd())
 
     log = logging.getLogger()

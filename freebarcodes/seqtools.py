@@ -9,7 +9,7 @@ import string
 bases='ACGT'
 
 
-dna_complements = string.maketrans('acgtnACGTN', 'tgcanTGCAN')
+dna_complements = str.maketrans('acgtnACGTN', 'tgcanTGCAN')
 def dna_rev_comp(dna_string):
     """
     Reverse complement.
@@ -17,7 +17,7 @@ def dna_rev_comp(dna_string):
     return dna_string.translate(dna_complements)[::-1]
 
 
-dna2num_tr = string.maketrans('ACGT', '0123')
+dna2num_tr = str.maketrans('ACGT', '0123')
 def dna2num(dna_string):
     """
     Convert dna to number where dna is considered base 4 with '0123' = 'ACGT'.
@@ -38,11 +38,11 @@ def to_base(n, b):
     res = ""
     while n:
         res += digs[n%b]
-        n /= b
+        n //= b
     return res[::-1] or "0"
 
 
-num2dna_tr = string.maketrans('0123', 'ACGT')
+num2dna_tr = str.maketrans('0123', 'ACGT')
 def num2dna(n, dnalen):
     """
     Convert number to dna of given length where dna is considered base 4 with '0123' = 'ACGT'
@@ -60,7 +60,7 @@ def frac_to_int_max_GC(k, frac_max_GC):
     Takes a fractional max GC value, like 0.6, and returns the integer maximum number of GC bases
     in a k-mer, length k.
     """
-    return min(range(k), key=lambda x: abs(float(x)/k-frac_max_GC))
+    return min(list(range(k)), key=lambda x: abs(float(x)/k-frac_max_GC))
 
 
 def mm_names(ref, seq):
@@ -74,7 +74,7 @@ def mm_names(ref, seq):
 def get_deletion_seqs(seq, ndel):
     """Returns set of all sequences with ndel deletions from given seq."""
     outset = set()
-    for tup in itertools.combinations(range(len(seq)), r=ndel):
+    for tup in itertools.combinations(list(range(len(seq))), r=ndel):
         newseq = seq[:tup[0]]
         for i, j in zip(tup, tup[1:]):
             newseq += seq[i+1:j]
@@ -97,7 +97,7 @@ def get_contiguous_insertion_seqs(seq, len_ins):
 def get_insertion_seqs(seq, nins):
     """Returns set of all sequences with nins insertions from given seq."""
     outset = set()
-    for tup in itertools.combinations(range(1, len(seq) + 1), r=nins):
+    for tup in itertools.combinations(list(range(1, len(seq) + 1)), r=nins):
         for ins_bases in itertools.product(bases, repeat=nins):
             assert len(ins_bases) == len(tup), (tup, ins_bases)
             newseq = seq[:tup[0]]
@@ -112,7 +112,7 @@ def get_insertion_seqs(seq, nins):
 def get_mismatch_seqs(seq, num_mm):
     """Returns set of all sequences with num_mm mutations from given seq."""
     outset = set()
-    for tup in itertools.combinations(range(len(seq)), r=num_mm):
+    for tup in itertools.combinations(list(range(len(seq))), r=num_mm):
         all_mm_bases = [bases.replace(seq[i], '') for i in tup]
         for mm_bases in itertools.product(*all_mm_bases):
             newseq = seq[:tup[0]]
@@ -246,7 +246,7 @@ def build_read_names_given_seq(target,
             last_start = len(seq) - len(target)
             if last_start < 0:
                 continue
-            min_ham_idx = min(range(0, last_start+1),
+            min_ham_idx = min(list(range(0, last_start+1)),
                               key=lambda i: simple_hamming_distance(target, seq[i:i+len(target)]))
             min_ham = simple_hamming_distance(target, seq[min_ham_idx:min_ham_idx+len(target)])
             if min_ham <= max_ham:
@@ -290,14 +290,14 @@ def add_random_truncated_insertion(seq):
 
 
 def add_random_mismatches(seq, nerr):
-    for i in random.sample(range(len(seq)), nerr):
+    for i in random.sample(list(range(len(seq))), nerr):
         b = random.choice(bases.replace(seq[i], ''))
         seq = seq[:i] + b + seq[i+1:]
     return seq
 
 
 def add_random_deletions(seq, nerr):
-    idxs = random.sample(range(len(seq)), nerr)
+    idxs = random.sample(list(range(len(seq))), nerr)
     idxs.sort(reverse=True)
     for i in idxs:
         seq = seq[:i] + seq[i+1:]
@@ -309,7 +309,7 @@ def add_random_filled_deletions(seq, nerr):
 
 
 def add_random_insertions(seq, nerr):
-    idxs = random.sample(nerr*range(len(seq)), nerr)
+    idxs = random.sample(nerr*list(range(len(seq))), nerr)
     idxs.sort(reverse=True)
     for i in idxs:
         b = random.choice(bases)
@@ -367,7 +367,7 @@ def sample_and_add_errors(seqs, lbda, psub, pdel, pins, corr_factor):
     out_seqs = []
     for seq in seqs:
         ncopies = np.random.poisson(lbda)
-        for _ in xrange(ncopies):
+        for _ in range(ncopies):
             corrupt_seq = add_correlated_errors(seq, psub, pdel, pins, corr_factor)
             if random.random() < 0.5:
                 corrupt_seq = dna_rev_comp(corrupt_seq)

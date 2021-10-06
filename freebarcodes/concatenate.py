@@ -2,7 +2,7 @@ import os
 import re
 import time
 import logging
-from seqtools import bases, dna_rev_comp
+from .seqtools import bases, dna_rev_comp
 
 log = logging.getLogger(__name__)
 

@@ -1,9 +1,9 @@
 import itertools
 import numpy as np
-from pathos.multiprocessing import ProcessPool
-import editmeasures
-import seqtools
 import logging
+from pathos.multiprocessing import ProcessPool
+from . import editmeasures
+from . import seqtools
 
 log = logging.getLogger(__name__)
 
@@ -84,7 +84,7 @@ class FreeDivSphere(object):
                     yield seq + ''.join(end_bases)
 
         # Now find the appropriate coordinate sets and iterate seqs
-        all_delidxs = range(cleaved_k-1)
+        all_delidxs = list(range(cleaved_k-1))
         for delidxs in itertools.combinations(all_delidxs, r=ndel):
             # We need only create the deletion seq once per set of indices
             delseq = self._deletion_seq(cleaved_seq, delidxs)
@@ -94,7 +94,7 @@ class FreeDivSphere(object):
             postdel_delidxs = set(idx - sum(1 for didx in delidxs if didx < idx)
                                   for idx in delidxs)
 
-            all_postdel_subidxs = range(postdel_k)
+            all_postdel_subidxs = list(range(postdel_k))
 
             # Don't insert at deletion sites
             all_postdel_insidxs = (set(range(postdel_k + 1))

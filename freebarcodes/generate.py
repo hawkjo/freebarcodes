@@ -73,8 +73,9 @@ class FreeDivBarcodeGenerator(object):
         for seq_idx in FreeDivSphere.FreeDivSphere(word, 2*self.max_err, min_r=self.max_err+1).parallel_num_iterator(self.threads):
             yield seq_idx
 
-    def _add_barcode(self, seq_idx):
-        assert self._idx_is_available(seq_idx), seq_idx
+    def _add_barcode(self, seq_idx, test=True):
+        if test:
+            assert self._idx_is_available(seq_idx), seq_idx
         self.barcodes.add(seq_idx)
         self._codewords.add(seq_idx)
         self._add_codeword(seq_idx)
@@ -103,7 +104,7 @@ class FreeDivBarcodeGenerator(object):
     def Conway_closure(self, tmp_fpath=None):
         for seq_idx in self.seq_idx_iter_func():
             if self._idx_is_available(seq_idx):
-                self._add_barcode(seq_idx)
+                self._add_barcode(seq_idx, test=False)
                 log.info('Found barcode {}: {}'.format(len(self.barcodes),
                                                        num2dna(seq_idx, self.bc_len)))
                 if tmp_fpath:
@@ -113,7 +114,7 @@ class FreeDivBarcodeGenerator(object):
     def Conway_closure_until_satisfied(self, n_desired_barcodes):
         for seq_idx in self.seq_idx_iter_func():
             if self._idx_is_available(seq_idx):
-                self._add_barcode(seq_idx)
+                self._add_barcode(seq_idx, test=False)
                 log.info('Found barcode {}: {}'.format(len(self.barcodes),
                                                        num2dna(seq_idx, self.bc_len)))
                 if len(self.barcodes) >= n_desired_barcodes:
@@ -123,7 +124,7 @@ class FreeDivBarcodeGenerator(object):
         log.info('Restarting {}...'.format(prev_fpath))
         prev_bc_idxs = [dna2num(line.strip()) for line in open(prev_fpath)]
         for bc_idx in prev_bc_idxs:
-            self._add_barcode(bc_idx)
+            self._add_barcode(bc_idx, test=True)
             log.info('Adding previous {}: {}'.format(len(self.barcodes),
                                                      num2dna(bc_idx, self.bc_len)))
         with open(tmp_fpath, 'w') as out:
@@ -140,7 +141,7 @@ class FreeDivBarcodeGenerator(object):
 
         for seq_idx in seq_iter:
             if self._idx_is_available(seq_idx):
-                self._add_barcode(seq_idx)
+                self._add_barcode(seq_idx, test=False)
                 log.info('Found barcode {}: {}'.format(len(self.barcodes),
                                                        num2dna(seq_idx, self.bc_len)))
                 if tmp_fpath:

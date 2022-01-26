@@ -53,13 +53,14 @@ class FreeDivBarcodeGenerator(object):
         else:
             self.seq_idx_iter_func = lambda : range(4**self.bc_len)
 
-    def _add_codeword(self, cw_idx):
+    def _add_codeword(self, cw_idx, encode_sphere=True):
         assert isinstance(cw_idx, int), '{} is not a valid codeword. Must be int'.format(cw_idx)
         self._codewords.add(cw_idx)
-        for seq_idx in self.iterate_approx_encode_sphere(cw_idx):
-            if self.reserved_words[seq_idx] == 0:
-                # Important to not overwrite previous 2's
-                self.reserved_words[seq_idx] = 1
+        if encode_sphere:
+            for seq_idx in self.iterate_approx_encode_sphere(cw_idx):
+                if self.reserved_words[seq_idx] == 0:
+                    # Important to not overwrite previous 2's
+                    self.reserved_words[seq_idx] = 1
         for seq_idx in self.iterate_decode_sphere(cw_idx):
             self.reserved_words[seq_idx] = 2
 
@@ -73,12 +74,12 @@ class FreeDivBarcodeGenerator(object):
         for seq_idx in FreeDivSphere.FreeDivSphere(word, 2*self.max_err, min_r=self.max_err+1).parallel_num_iterator(self.threads):
             yield seq_idx
 
-    def _add_barcode(self, seq_idx, test=True):
+    def _add_barcode(self, seq_idx, test=True, encode_sphere=True):
         if test:
             assert self._idx_is_available(seq_idx), seq_idx
         self.barcodes.add(seq_idx)
         self._codewords.add(seq_idx)
-        self._add_codeword(seq_idx)
+        self._add_codeword(seq_idx, encode_sphere)
 
     def add_dnastr_nonbarcode_codeword(self, dnastring):
         seq_idx = dna2num(dnastring)
@@ -101,30 +102,30 @@ class FreeDivBarcodeGenerator(object):
                     return False
             return True
 
-    def Conway_closure(self, tmp_fpath=None):
+    def Conway_closure(self, tmp_fpath=None, encode_sphere=True):
         for seq_idx in self.seq_idx_iter_func():
             if self._idx_is_available(seq_idx):
-                self._add_barcode(seq_idx, test=False)
+                self._add_barcode(seq_idx, test=False, encode_sphere=encode_sphere)
                 log.info('Found barcode {}: {}'.format(len(self.barcodes),
                                                        num2dna(seq_idx, self.bc_len)))
                 if tmp_fpath:
                     with open(tmp_fpath, 'a') as out:
                         out.write('{}\n'.format(num2dna(seq_idx, self.bc_len)))
 
-    def Conway_closure_until_satisfied(self, n_desired_barcodes):
+    def Conway_closure_until_satisfied(self, n_desired_barcodes, encode_sphere=True):
         for seq_idx in self.seq_idx_iter_func():
             if self._idx_is_available(seq_idx):
-                self._add_barcode(seq_idx, test=False)
+                self._add_barcode(seq_idx, test=False, encode_sphere=encode_sphere)
                 log.info('Found barcode {}: {}'.format(len(self.barcodes),
                                                        num2dna(seq_idx, self.bc_len)))
                 if len(self.barcodes) >= n_desired_barcodes:
                     return
 
-    def restart_Conway_closure(self, prev_fpath, tmp_fpath=None):
+    def restart_Conway_closure(self, prev_fpath, tmp_fpath=None, encode_sphere=True):
         log.info('Restarting {}...'.format(prev_fpath))
         prev_bc_idxs = [dna2num(line.strip()) for line in open(prev_fpath)]
         for bc_idx in prev_bc_idxs:
-            self._add_barcode(bc_idx, test=True)
+            self._add_barcode(bc_idx, test=True, encode_sphere=encode_sphere)
             log.info('Adding previous {}: {}'.format(len(self.barcodes),
                                                      num2dna(bc_idx, self.bc_len)))
         with open(tmp_fpath, 'w') as out:
@@ -141,7 +142,7 @@ class FreeDivBarcodeGenerator(object):
 
         for seq_idx in seq_iter:
             if self._idx_is_available(seq_idx):
-                self._add_barcode(seq_idx, test=False)
+                self._add_barcode(seq_idx, test=False, encode_sphere=encode_sphere)
                 log.info('Found barcode {}: {}'.format(len(self.barcodes),
                                                        num2dna(seq_idx, self.bc_len)))
                 if tmp_fpath:

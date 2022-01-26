@@ -58,7 +58,7 @@ def prune_barcodes(arguments):
                          'barcodes{}-{}.txt'.format(bc_len, arguments.num_errors))
 
     sbg = generate.FreeDivBarcodeGenerator(bc_len, arguments.num_errors, bc_iter, arguments.threads)
-    sbg.Conway_closure()
+    sbg.Conway_closure(encode_sphere=False)
     with open(fpath, 'w') as out:
         out.write('\n'.join(sorted(sbg.dna_barcodes)))
     comp_time = time.time() - start_time

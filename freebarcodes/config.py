@@ -53,9 +53,14 @@ class CommandLineArguments(object):
     @property
     def max_prefix_err(self):
         return [int(max_err) for max_err in self._comma_delimited_arg('--max-prefix-err')]
+
     @property
     def num_errors(self):
         return int(self._arguments['<num_errors>'] or 0)
+
+    @property
+    def threads(self):
+        return int(self._arguments['--threads'] or 1)
 
     @property
     def output_dir(self):

@@ -151,13 +151,13 @@ class FreeDivSphere(object):
                 yield newseq
 
 
-    def iterator_test(self, iterator='self'):
+    def iterator_test(self, iterator='self', threads=1):
         log.info('Generating self set...')
         if iterator == 'self':
             self_set = set(self)
         elif iterator == 'parallel_num':
             self_set = set(seqtools.num2dna(seq, len(self.c))
-                           for seq in self.parallel_num_iterator())
+                           for seq in self.parallel_num_iterator(threads))
         else:
             raise ValueError('Invalid iterator to test: {}'.format(iterator))
 
@@ -173,14 +173,14 @@ class FreeDivSphere(object):
                 len(bf_set - self_set), len(self_set - bf_set)
             ))
 
-    def parallel_num_iterator(self, num_proc=None):
+    def parallel_num_iterator(self, threads=1):
         nerr_tups = list(self._nsub_ndel_nins_iterator())
         def dna_nums_given_nerr_tup(nerr_tup):
             nsub, ndel, nins = nerr_tup
             return [seqtools.dna2num(seq)
                     for seq in self._freediv_subsphere_given_counts(nsub, ndel, nins)]
 
-        pl = ProcessPool(num_proc)
+        pl = ProcessPool(threads)
         results = pl.map(dna_nums_given_nerr_tup, nerr_tups)
         for num in itertools.chain(*results):
             yield num

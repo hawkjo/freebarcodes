@@ -31,9 +31,10 @@ class FreeDivBarcodeGenerator(object):
     #       not overwrite any 2's
     #   3. Repeat until space exhausted.
 
-    def __init__(self, bc_len, max_err, seq_idx_iter_func=None):
+    def __init__(self, bc_len, max_err, seq_idx_iter_func=None, threads=1):
         self.bc_len = bc_len
         self.max_err = max_err
+        self.threads = threads
         self._codewords = set()
         self.barcodes = set()
         self.manual_codewords = set()
@@ -64,12 +65,12 @@ class FreeDivBarcodeGenerator(object):
 
     def iterate_decode_sphere(self, center_idx):
         word = num2dna(center_idx, self.bc_len)
-        for seq_idx in FreeDivSphere.FreeDivSphere(word, self.max_err).parallel_num_iterator():
+        for seq_idx in FreeDivSphere.FreeDivSphere(word, self.max_err).parallel_num_iterator(self.threads):
             yield seq_idx
 
     def iterate_approx_encode_sphere(self, center_idx):
         word = num2dna(center_idx, self.bc_len)
-        for seq_idx in FreeDivSphere.FreeDivSphere(word, 2*self.max_err, min_r=self.max_err+1).parallel_num_iterator():
+        for seq_idx in FreeDivSphere.FreeDivSphere(word, 2*self.max_err, min_r=self.max_err+1).parallel_num_iterator(self.threads):
             yield seq_idx
 
     def _add_barcode(self, seq_idx):
@@ -296,7 +297,8 @@ def generate_normal_barcodes(arguments):
     bc_iter = idx_possible_barcode_iterator(arguments.barcode_length, GC_max, GC_max)
     sbg = FreeDivBarcodeGenerator(arguments.barcode_length,
                                   arguments.num_errors,
-                                  bc_iter)
+                                  bc_iter,
+                                  arguments.threads)
     if arguments.exclude_bc_fpath:
         sbg.exclude_barcodes(arguments.exclude_bc_fpath)
     if arguments.prev_bc_fpath:
@@ -328,7 +330,8 @@ def generate_barcode_4sets(arguments):
     log.info('Barcode length: {}'.format(arguments.barcode_length))
     log.info('AT/GC max: {}'.format(GC_max))
     sbg = FreeDivBarcodeGenerator(arguments.barcode_length,
-                                  arguments.num_errors)
+                                  arguments.num_errors,
+                                  threads=arguments.threads)
     if arguments.exclude_bc_fpath:
         sbg.exclude_barcodes(arguments.exclude_bc_fpath)
     if arguments.prev_bc_fpath:

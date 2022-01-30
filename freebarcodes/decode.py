@@ -105,8 +105,6 @@ class FreeDivBarcodeDecoder(object):
                     if self._codebook[seq_idx] != 0 and self._codebook[seq_idx] != cw_idx:
                         self._codebook[seq_idx] = reject_idx
 
-        # Finally, set rejected idxs to zero for downstream processing
-        self._codebook[self._codebook == reject_idx] = 0
 
 
     def analyze_random_codeword_codebook(self):
@@ -188,9 +186,10 @@ class FreeDivBarcodeDecoder(object):
         cw_idx = self._codebook[seq_idx]
         if cw_idx == 0:
             return
-        else:
-            cw_idx -= 1
-            return self._codewords[cw_idx]
+        cw_idx -= 1
+        if cw_idx == len(self._codewords):
+            return -1
+        return self._codewords[cw_idx]
 
 
     def time_decoder(self, n_decodes=1000):

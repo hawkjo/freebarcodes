@@ -71,7 +71,7 @@ class FreeDivBarcodeDecoder(object):
         self._codewords = list(codewords)
         self._codewords.sort()
         self._set_cw_len()
-        self._initialize_codebook()
+        self._initialize_codebook(self.max_err_detect)
 
         # Assign decode spheres proper index, rejecting conflicts
         reject_idx = len(self._codewords) + 1
@@ -130,18 +130,19 @@ class FreeDivBarcodeDecoder(object):
         return stats_given_cw
 
 
-    def _initialize_codebook(self):
+    def _initialize_codebook(self, n_reject_levels=0):
         # need space for codewords + 2 (unassigned, conflict => ignore)
-        if len(self._codewords) + 2 <= 2**8:
+        needed_vals = len(self._codewords) + 1 + n_reject_levels
+        if needed_vals <= 2**8:
             dtype = np.uint8
             cw_bytes = 1
-        elif len(self._codewords) + 2 <= 2**16:
+        elif needed_vals <= 2**16:
             dtype = np.uint16
             cw_bytes = 2
-        elif len(self._codewords) + 2 <= 2**32:
+        elif needed_vals <= 2**32:
             dtype = np.uint32
             cw_bytes = 4
-        elif len(self._codewords) + 2 <= 2**64:
+        elif needed_vals <= 2**64:
             dtype = np.uint64
             cw_bytes = 8
         else:
@@ -182,13 +183,16 @@ class FreeDivBarcodeDecoder(object):
 
 
     def decode(self, seq):
+        """
+        Return barcode if decoded, None if outside all spheres, or negative number by conflict level.
+        """
         seq_idx = seqtools.dna2num(seq)
         cw_idx = self._codebook[seq_idx]
         if cw_idx == 0:
             return
         cw_idx -= 1
         if cw_idx == len(self._codewords):
-            return -1
+            return -1 - cw_idx + len(self._codewords)
         return self._codewords[cw_idx]
 
 

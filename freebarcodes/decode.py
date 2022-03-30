@@ -58,53 +58,61 @@ class FreeDivBarcodeDecoder(object):
                 seq_idx = seqtools.dna2num(seq)
                 self._codebook[seq_idx] = cw_idx
 
-    def build_codebook_from_random_codewords(self, codewords, max_err_decode, max_err_detect=None):
+    def build_codebook_from_random_codewords(
+            self,
+            codewords,
+            max_err_decode,
+            reject_delta=0):
         """
         Builds codebook given list or set of random, undesigned codewords
 
             codewords :iterable: list or set of codewords
             max_err_decode :int: max correctible error
-            max_err_detect :int: max error to detect and reject conflicts  (>max_err_decode)
+            reject_delta :int: additional radius to find and reject conflicts
         """
+        assert isinstance(max_err_decode, int) and max_err_decode >= 0
+        assert isinstance(reject_delta, int) and reject_delta >= 0
         self.max_err_decode = max_err_decode
-        self.max_err_detect = max_err_detect
+        self.reject_delta = reject_delta
         self._codewords = list(codewords)
         self._codewords.sort()
         self._set_cw_len()
-        self._initialize_codebook(self.max_err_detect)
+        self._initialize_codebook(self.max_err_decode)
 
-        # Assign decode spheres proper index, rejecting conflicts
-        reject_idx = len(self._codewords) + 1
-        for i, cw in enumerate(self._codewords):
-            cw_idx = i + 1
-            for seq in FreeDivSphere.FreeDivSphere(cw, self.max_err_decode):
-                seq_idx = seqtools.dna2num(seq)
-                if self._codebook[seq_idx] == 0: # unassigned
-                    self._codebook[seq_idx] = cw_idx
-                elif self._codebook[seq_idx] != cw_idx: # assigned to other bc (reject)
-                    self._codebook[seq_idx] = reject_idx
-
-        if self.max_err_detect is not None:
-            if self.max_err_detect <= self.max_err_decode:
-                raise ValueError(
-                    'max_err_detect ({}) must be larger than max_err_decode ({})'.format(
-                        self.max_err_detect,
-                        self.max_err_decode,
-                        )
-                    )
-
-            # Iterate detect spheres, rejecting conflicts
+        for decode_radius in range(self.max_err_decode, 0, -1): # not including zero
+            # Assign decode spheres proper index, rejecting conflicts
+            reject_idx = len(self._codewords) + decode_radius
             for i, cw in enumerate(self._codewords):
                 cw_idx = i + 1
-                for seq in FreeDivSphere.FreeDivSphere(
-                        cw, 
-                        min_r=self.max_err_decode+1,
-                        r=self.max_err_detect
-                        ):
+                for seq in FreeDivSphere.FreeDivSphere(cw, decode_radius):
                     seq_idx = seqtools.dna2num(seq)
-                    if self._codebook[seq_idx] != 0 and self._codebook[seq_idx] != cw_idx:
+                    val = self._codebook[seq_idx] 
+                    if val == 0 or val > reject_idx: # unassigned or rejected in a previous round (try again)
+                        self._codebook[seq_idx] = cw_idx
+                    elif 0 < val <= len(self._codewords) and val != cw_idx: # assigned to other bc (reject)
                         self._codebook[seq_idx] = reject_idx
+                    # else val matches cw_idx or was rejected already this round
 
+            if self.reject_delta != 0:
+                # Iterate reject spheres, rejecting conflicts
+                for i, cw in enumerate(self._codewords):
+                    cw_idx = i + 1
+                    for seq in FreeDivSphere.FreeDivSphere(
+                            cw, 
+                            min_r=decode_radius+1,
+                            r=decode_radius+self.reject_delta,
+                            ):
+                        seq_idx = seqtools.dna2num(seq)
+                        val = self._codebook[seq_idx] 
+                        if 0 < val <= len(self._codewords) and val != cw_idx:
+                            self._codebook[seq_idx] = reject_idx
+                        # else val unassigned, matches current, or already rejected
+
+        for i, cw in enumerate(self._codewords):
+            # Set all barcodes with zero errors to themselves
+            cw_idx = i + 1
+            seq_idx = seqtools.dna2num(cw)
+            self._codebook[seq_idx] = cw_idx
 
 
     def analyze_random_codeword_codebook(self):
@@ -191,7 +199,7 @@ class FreeDivBarcodeDecoder(object):
         if cw_idx == 0:
             return
         cw_idx -= 1
-        if cw_idx == len(self._codewords):
+        if cw_idx >= len(self._codewords):
             return -1 - cw_idx + len(self._codewords)
         return self._codewords[cw_idx]
 

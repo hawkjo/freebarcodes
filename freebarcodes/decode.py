@@ -180,6 +180,8 @@ class FreeDivBarcodeDecoder(object):
             f.create_dataset('codewords', (len(self._codewords),), dtype, self._codewords)
             f.create_dataset('codebook', (len(self._codebook),), self._codebook.dtype, self._codebook)
             f.attrs['max_err_decode'] = self.max_err_decode
+            if hasattr(self, reject_delta):
+                f.attrs['reject_delta'] = self.reject_delta
 
 
     def load_codebook(self, codebook_fpath):

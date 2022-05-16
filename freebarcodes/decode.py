@@ -187,6 +187,8 @@ class FreeDivBarcodeDecoder(object):
     def load_codebook(self, codebook_fpath):
         with h5py.File(codebook_fpath, 'r') as f:
             self.max_err_decode = int(f.attrs['max_err_decode'])
+            if 'reject_delta' in f.attrs:
+                self.reject_delta = int(f.attrs['reject_delta'])
             self._codewords = [bc.decode('ascii') for bc in f['codewords']]
             self._codebook = np.array(f['codebook'])
         self._set_cw_len()

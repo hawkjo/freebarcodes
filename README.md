@@ -10,7 +10,13 @@ A package for the generation and decoding of FREE divergence error-correcting DN
 
 ### Installation
 
-The following instructions should work across platforms, except that installing virtualenv with apt-get is Ubuntu specific. For other platforms, install virtualenv appropriately if desired.
+For easiest installation, use pip:
+
+```
+pip install freebarcodes
+```
+
+The following instructions should also work for manual installation across platforms, except that installing virtualenv with apt-get is Ubuntu specific. For other platforms, install virtualenv appropriately if desired.
 
 First, clone the repository to a local directory:
 
@@ -23,14 +29,14 @@ Optionally, you can install into a virtual environment (recommended):
 ```
 sudo apt-get install -y virtualenv
 cd freebarcodes
-virtualenv envfreebarcodes
+python -m venv envfreebarcodes
 . envfreebarcodes/bin/activate
 ```
 
-Now install required packages and freebarcodes using pip:
+Now install required packages listed in `setup.py` and install freebarcodes with `setup.py:
 
 ```
-pip install numpy==1.13.3 && pip install -r requirements.txt && python setup.py install
+python setup.py install
 ```
 
 ### Usage

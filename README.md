@@ -33,7 +33,7 @@ python -m venv envfreebarcodes
 . envfreebarcodes/bin/activate
 ```
 
-Now install required packages listed in `setup.py` and install freebarcodes with `setup.py:
+Now install required packages listed in `setup.py` and install freebarcodes with `setup.py`:
 
 ```
 python setup.py install

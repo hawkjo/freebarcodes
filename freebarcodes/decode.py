@@ -199,7 +199,7 @@ class FreeDivBarcodeDecoder(object):
         Return barcode if decoded, None if outside all spheres, or negative number by conflict level.
         """
         seq_idx = seqtools.dna2num(seq)
-        cw_idx = self._codebook[seq_idx]
+        cw_idx = int(self._codebook[seq_idx])
         if cw_idx == 0:
             return
         cw_idx -= 1

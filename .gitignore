@@ -10,4 +10,7 @@ freebarcodes.egg-info
 3
 counts.txt
 editmeasures.c
+editmeasures.cpython-310-x86_64-linux-gnu.so
 *_decoded.txt
+!tests/decode/example_8-2_barcodes_decoded.txt
+!tests/decode/example_8-2_barcodes_prefixes_TCTACTCTCCATACG_CACTTGGATC_decoded.txt

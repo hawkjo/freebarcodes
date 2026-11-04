@@ -1,5 +1,5 @@
 from setuptools import setup
-from distutils.extension import Extension
+from setuptools import Extension
 from Cython.Build import cythonize
 import numpy as np
 
@@ -39,7 +39,7 @@ if __name__ == '__main__':
             "h5py>=3.2.1",
             "numpy>=1.20.0",
             "docopt>=0.6.2",
-            "biopython>=1.70",
+            "biopython==1.79", # > 1.79 breaks non mainline features
             "cython>=0.29.23",
             ],
         zip_safe=False,
@@ -49,7 +49,7 @@ if __name__ == '__main__':
         url='https://github.com/hawkjo/freebarcodes',
         download_url='https://github.com/hawkjo/freebarcodes/archive/refs/tags/v3.0.tar.gz',
         keywords=['DNA', 'NGS', 'bioinformatics', 'barcodes'],
-        python_requires='>=3.0',
+        python_requires='>=3.0,<3.12',
         classifiers=['Development Status :: 3 - Alpha',
                      'Natural Language :: English',
                      'Intended Audience :: Science/Research',
